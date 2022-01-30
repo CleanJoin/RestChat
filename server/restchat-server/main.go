@@ -17,6 +17,12 @@ func main() {
 			"message": "Kill",
 		})
 	})
+	router.GET("/user", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"error":   "Not implemented YET",
+			"message": "What your name?",
+		})
+	})
 
 	router.Run()
 }
