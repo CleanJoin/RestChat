@@ -1,0 +1,17 @@
+version: "3.3"
+
+services:
+
+  restchat_client:
+    build: client
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client/restchat-client/:/usr/src/restchat-client/
+
+  restchat_server:
+    build: server
+    ports:
+      - 8080:8080
+    volumes:
+      - ./server/restchat-server/:/usr/src/restchat-server
