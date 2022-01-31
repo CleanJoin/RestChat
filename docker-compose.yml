@@ -7,7 +7,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./client/restchat-client/:/usr/src/restchat-client/
+      - ./client/restchat-client/src/:/usr/src/restchat-client/src
+      - ./client/restchat-client/public/:/usr/src/restchat-client/public
 
   restchat_server:
     build: server
