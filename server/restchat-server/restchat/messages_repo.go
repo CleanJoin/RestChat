@@ -18,8 +18,9 @@ type IMessagesRepo interface {
 func NewMessagesMemRepo() *MessagesMemRepo {
 	return &MessagesMemRepo{}
 }
+
 func ReceivelastIDMessage(mmr *MessagesMemRepo) int {
-	if mmr == nil {
+	if mmr == nil || len(mmr.Messages) == 0 {
 		return 0
 	}
 	sort.Slice(mmr.Messages, func(i, j int) (less bool) {
@@ -33,6 +34,7 @@ func ReceivelastIDMessage(mmr *MessagesMemRepo) int {
 // }
 
 func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, error) {
+
 	id := ReceivelastIDMessage(mmr)
 	id++
 	lenlastmessages := len(mmr.Messages)
@@ -42,7 +44,7 @@ func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, erro
 		return MessageModel{ID: 0, UserId: 0, Text: "", TimeMessage: time.Time{}}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
 
-	return mmr.Messages[id], fmt.Errorf("cообщение создалось: %v", mmr.Messages[id])
+	return mmr.Messages[len(mmr.Messages)-1], fmt.Errorf("cообщение создалось: %v", mmr.Messages[len(mmr.Messages)-1])
 }
 
 func (mmr *MessagesMemRepo) GetLast(n int) ([]MessageModel, error) {
@@ -54,7 +56,7 @@ func (mmr *MessagesMemRepo) GetLast(n int) ([]MessageModel, error) {
 	sort.Slice(mmr.Messages, func(i, j int) (less bool) {
 		return mmr.Messages[i].ID > mmr.Messages[j].ID
 	})
-	cplastmessages := mmr.Messages[0:n]
+	copylastmessages := mmr.Messages[0:n]
 
-	return cplastmessages, fmt.Errorf("выгрузка удалась: %v", cplastmessages)
+	return copylastmessages, fmt.Errorf("выгрузка удалась: %v", copylastmessages)
 }
