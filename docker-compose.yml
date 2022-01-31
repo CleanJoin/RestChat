@@ -13,6 +13,6 @@ services:
   restchat_server:
     build: server
     ports:
-      - 8080:8080
+      - 8000:3000
     volumes:
       - ./server/restchat-server/:/usr/src/restchat-server

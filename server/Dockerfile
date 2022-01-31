@@ -4,7 +4,7 @@ ADD restchat-server /usr/src/restchat-server
 
 WORKDIR /usr/src/restchat-server
 
-RUN go build .
+RUN go get github.com/codegangsta/gin
 
-CMD go run .
+CMD gin . 
 
