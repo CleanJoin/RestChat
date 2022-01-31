@@ -18,11 +18,23 @@ type IMessagesRepo interface {
 func NewMessagesMemRepo() *MessagesMemRepo {
 	return &MessagesMemRepo{}
 }
+func ReceivelastIDMessage(mmr *MessagesMemRepo) int {
+	if mmr == nil {
+		return 0
+	}
+	sort.Slice(mmr.Messages, func(i, j int) (less bool) {
+		return mmr.Messages[i].ID > mmr.Messages[j].ID
+	})
+	return mmr.Messages[0].ID
+}
+
+// Нужно реализоавать функцию которая будет отчищать массим сообщений, при выходе всех пользователей
+// func DeleteAllMessagesMemRepo(mmr *MessagesMemRepo) *MessagesMemRepo {
+// }
 
 func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, error) {
-
-	id := 1 // добавить функцию получения id массива, выдавать последний и плюсовать.
-	// Так же нужна функция, при выходе все участников чата отчищала массив сообщений
+	id := ReceivelastIDMessage(mmr)
+	id++
 	lenlastmessages := len(mmr.Messages)
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: id, UserId: user_id, Text: text, TimeMessage: time.Now()})
 
