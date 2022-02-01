@@ -2,6 +2,7 @@ package restchat
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -49,6 +50,36 @@ func TestCreate(t *testing.T) {
 
 	if request != outmessage.Messages[0] {
 		t.Errorf("Ошибка не верный вывод из функции")
+	}
+	fmt.Println(err)
+}
+
+func TestGetLastEmpty(t *testing.T) {
+	mmr := new(MessagesMemRepo)
+	lastsqn := 3
+	request, err := mmr.GetLast(lastsqn)
+	if request != nil || len(request) != 0 {
+		t.Errorf("Массив сообщений не пустой")
+	}
+	fmt.Println(err)
+}
+
+func TestGetLast(t *testing.T) {
+	mmr := new(MessagesMemRepo)
+	mmr.Messages = append(mmr.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", TimeMessage: time.Now()})
+	mmr.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	mmr.Messages = append(mmr.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	mmr.Messages = append(mmr.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	lastsqn := 3
+	outmessage := new(MessagesMemRepo)
+	outmessage.Messages = append(mmr.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	outmessage.Messages = append(mmr.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	outmessage.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+
+	request, err := mmr.GetLast(lastsqn)
+	fmt.Println(request)
+	if reflect.DeepEqual(request, outmessage.Messages) != false {
+		t.Errorf("Не корретный список сообщений")
 	}
 	fmt.Println(err)
 }
