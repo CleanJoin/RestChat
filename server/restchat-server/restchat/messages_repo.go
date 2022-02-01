@@ -49,8 +49,8 @@ func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, erro
 
 func (mmr *MessagesMemRepo) GetLast(n int) ([]MessageModel, error) {
 
-	if mmr == nil {
-		return mmr.Messages, fmt.Errorf("%s", "Нет сообщений")
+	if mmr == nil || len(mmr.Messages) == 0 {
+		return mmr.Messages, fmt.Errorf("%s", "В памяти нет сообщений")
 	}
 
 	sort.Slice(mmr.Messages, func(i, j int) (less bool) {
