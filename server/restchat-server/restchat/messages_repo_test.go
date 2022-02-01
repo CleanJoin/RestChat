@@ -20,7 +20,7 @@ func TestReceivelastIDMessage(t *testing.T) {
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 1, Text: "Первое сообщение чата", TimeMessage: time.Now()})
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 2, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 	if ReceivelastIDMessage(mmr) != 4 {
-		t.Errorf("Не верное выводиться id последего сообщения")
+		t.Errorf("Не верное выводиться id последнего сообщения")
 	}
 	fmt.Printf("Все хорошо!! Идентификатор последнего сообщения: %v\n", ReceivelastIDMessage(mmr))
 }
@@ -70,16 +70,18 @@ func TestGetLast(t *testing.T) {
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+
 	lastsqn := 3
+
 	outmessage := new(MessagesMemRepo)
-	outmessage.Messages = append(mmr.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
-	outmessage.Messages = append(mmr.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
-	outmessage.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 
 	request, err := mmr.GetLast(lastsqn)
-	fmt.Println(request)
-	if reflect.DeepEqual(request, outmessage.Messages) != false {
-		t.Errorf("Не корретный список сообщений")
+	fmt.Println(outmessage.Messages)
+	if reflect.DeepEqual(request, outmessage.Messages) != true {
+		t.Errorf("Не корретный список сообщений \n%v\n%v", request, outmessage.Messages)
 	}
 	fmt.Println(err)
 }
