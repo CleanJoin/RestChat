@@ -7,22 +7,22 @@ import (
 	"time"
 )
 
-func TestReceivelastIDMessageEmpty(t *testing.T) {
+func TestgetLastMessageIdEmpty(t *testing.T) {
 	mmr := new(MessagesMemRepo)
-	if ReceivelastIDMessage(mmr) != 0 {
+	if getLastMessageId(mmr) != 0 {
 		t.Errorf("Массив сообщений не пустой")
 	}
-	fmt.Printf("Все хорошо!! массив пустой %v\n", ReceivelastIDMessage(mmr))
+	fmt.Printf("Все хорошо!! массив пустой %v\n", getLastMessageId(mmr))
 }
 
-func TestReceivelastIDMessage(t *testing.T) {
+func TestgetLastMessageId(t *testing.T) {
 	mmr := new(MessagesMemRepo)
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 1, Text: "Первое сообщение чата", TimeMessage: time.Now()})
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 2, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
-	if ReceivelastIDMessage(mmr) != 4 {
+	if getLastMessageId(mmr) != 4 {
 		t.Errorf("Не верное выводиться id последнего сообщения")
 	}
-	fmt.Printf("Все хорошо!! Идентификатор последнего сообщения: %v\n", ReceivelastIDMessage(mmr))
+	fmt.Printf("Все хорошо!! Идентификатор последнего сообщения: %v\n", getLastMessageId(mmr))
 }
 
 func TestCreateEmpty(t *testing.T) {

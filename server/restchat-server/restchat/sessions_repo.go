@@ -31,11 +31,11 @@ func (usmr *UserSessionsMemRepo) GetOnlineUserIds() ([]int, error) {
 	return userid, fmt.Errorf("вывод список пользователей онлайн: %v", userid)
 
 }
-func RemoveIndexSession(sm []SessionModel, index int) []SessionModel {
+func deleteSessionByIndex(sm []SessionModel, index int) []SessionModel {
 	return append(sm[:index], sm[index+1:]...)
 }
 
-func ReceivelastIDSession(usmr *UserSessionsMemRepo) int {
+func getLastSessionId(usmr *UserSessionsMemRepo) int {
 	if usmr == nil || len(usmr.Sessions) == 0 {
 		return 0
 	}
@@ -56,15 +56,15 @@ func (usmr *UserSessionsMemRepo) DeleteSession(api_token string) (UserSessionsMe
 			break
 		}
 	}
-	usmr.Sessions = RemoveIndexSession(usmr.Sessions, index)
-	return *usmr, fmt.Errorf("%s", "Не удалось удалить сесию, пустой токен")
+	usmr.Sessions = deleteSessionByIndex(usmr.Sessions, index)
+	return *usmr, fmt.Errorf("%s", "Не удалось удалить сессию, пустой токен")
 }
 
 func (usmr *UserSessionsMemRepo) CreateSession(user_id int) (SessionModel, error) {
 	if user_id == 0 {
 		return SessionModel{ID: 0, Username: "", Auth_token: ""}, fmt.Errorf("%s", "Не удалось создать сесию, так как user_id пустой")
 	}
-	id := ReceivelastIDSession(usmr)
+	id := getLastSessionId(usmr)
 	id++
 	lenlastmessages := len(usmr.Sessions)
 	uuid := new(UuidSession)
