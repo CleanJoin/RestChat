@@ -6,13 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type UuidSession struct {
+type TokenGeneratorUUID struct {
 }
 type ITokenGenerator interface {
 	Create() string
 }
 
-func (*UuidSession) Create() string {
+func (*TokenGeneratorUUID) Create() string {
 	uuidWithHyphen := uuid.New()
 	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
 	return uuid
