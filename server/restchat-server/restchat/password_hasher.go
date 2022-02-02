@@ -7,7 +7,6 @@ import (
 )
 
 type PasswordHasherSha1 struct {
-	PasswordSha1 string
 }
 type IPasswordHasher interface {
 	CalculateHash(password string) string
