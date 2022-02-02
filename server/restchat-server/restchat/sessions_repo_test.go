@@ -8,15 +8,15 @@ import (
 
 func TestGetOnlineUserIds(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
-	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
-	userid := []int{1, 2}
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 2, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	userid := []uint{2, 3}
 	request, err := sessionStorage.GetOnlineUserIds()
-	if reflect.DeepEqual(request, userid) != false {
-		t.Errorf("Не верный список пользователей")
+	if reflect.DeepEqual(request, userid) != true {
+		t.Errorf("Не верный список пользователей %v %v", request, userid)
 	}
 
-	fmt.Printf("Все хорошо! массив готов %v\n", err)
+	fmt.Println(err)
 }
 func TestDeleteSessionByIndex(t *testing.T) {
 

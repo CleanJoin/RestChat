@@ -24,8 +24,14 @@ func NewSessionStorageMemory(tokenGenerator ITokenGenerator) *SessionStorageMemo
 }
 
 func (ssm *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
-	var d []uint
-	return d, fmt.Errorf("Test")
+	if ssm == nil || len(ssm.Sessions) == 0 {
+		return nil, fmt.Errorf("все пользователи не в сети")
+	}
+	var onlineUsers []uint
+	for _, r := range ssm.Sessions {
+		onlineUsers = append(onlineUsers, r.UserId)
+	}
+	return onlineUsers, fmt.Errorf("список пользователей онлайн:%v", onlineUsers)
 }
 func deleteSessionByIndex(sm []SessionModel, index int) []SessionModel {
 	return append(sm[:index], sm[index+1:]...)
