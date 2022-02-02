@@ -2,42 +2,42 @@ package restchat
 
 import "fmt"
 
-type UsersMemRepo struct {
+type UserStorageMemory struct {
 	Users []UserModel
 }
 
-type IUsersRepo interface {
-	CreateUser(username string, password string) UserModel
+type IUserStorage interface {
+	Create(username string, password string) UserModel
 	GetByName(name string) UserModel
 	GetById(id uint) UserModel
 	GetbyIds(ids []uint) []UserModel
 }
 
-func NewUsersMemRepo() *UsersMemRepo {
-	return &UsersMemRepo{}
+func NewUserStorageMemory() *UserStorageMemory {
+	return &UserStorageMemory{}
 }
 
-func (umr *UsersMemRepo) CreateUser(username string, password string) (UserModel, error) {
+func (usm *UserStorageMemory) Create(username string, password string) (UserModel, error) {
 	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("%s", "Не нашелся пользователь:")
 }
-func (umr *UsersMemRepo) GetByName(name string) (UserModel, error) {
-	for i, r := range umr.Users {
+func (usm *UserStorageMemory) GetByName(name string) (UserModel, error) {
+	for i, r := range usm.Users {
 		if r.Username == name {
-			return umr.Users[i], fmt.Errorf("нашелся пользователь: %v", umr.Users[i])
+			return usm.Users[i], fmt.Errorf("нашелся пользователь: %v", usm.Users[i])
 		}
 	}
 	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("%s", "Не нашелся пользователь:")
 }
 
-func (umr *UsersMemRepo) GetById(id uint) (UserModel, error) {
-	for i, r := range umr.Users {
+func (usm *UserStorageMemory) GetById(id uint) (UserModel, error) {
+	for i, r := range usm.Users {
 		if r.ID == id {
-			return umr.Users[i], fmt.Errorf("нашелся пользователь: %v", umr.Users[i])
+			return usm.Users[i], fmt.Errorf("нашелся пользователь: %v", usm.Users[i])
 		}
 	}
 	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("%s", "Не нашелся пользователь:")
 }
 
-// func (umr *UsersMemRepo) GetById(ids []uint) ([]UserModel, error) {
-
+// func (usm *UserStorageMemory) GetByIds(ids []uint) ([]UserModel, error) {
+// 	return  fmt.Errorf("%s", "Не нашелся пользователь:")
 // }
