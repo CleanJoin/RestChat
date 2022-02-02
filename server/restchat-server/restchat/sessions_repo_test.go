@@ -7,13 +7,11 @@ import (
 )
 
 func TestGetOnlineUserIds(t *testing.T) {
-	// sessionmemrep := new(UserSessionsMemRepo)
-
-	sessionmemrep := NewUserSessionsMemRepo(new(UuidSession))
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
 	userid := []int{1, 2}
-	request, err := sessionmemrep.GetOnlineUserIds()
+	request, err := sessionStorage.GetOnlineUserIds()
 	if reflect.DeepEqual(request, userid) != false {
 		t.Errorf("Не верный список пользователей")
 	}
@@ -22,44 +20,61 @@ func TestGetOnlineUserIds(t *testing.T) {
 }
 func TestDeleteSessionByIndex(t *testing.T) {
 
-	sessionmemrep := new(UserSessionsMemRepo)
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	sessionStorage := new(SessionStorageMemory)
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
 
-	outusersession := new(UserSessionsMemRepo)
-	outusersession.Sessions = append(outusersession.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	request := deleteSessionByIndex(sessionmemrep.Sessions, 1)
+	outSessionStorage := new(SessionStorageMemory)
+	outSessionStorage.Sessions = append(outSessionStorage.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	request := deleteSessionByIndex(sessionStorage.Sessions, 1)
 
-	if reflect.DeepEqual(request, outusersession.Sessions) != true {
-		t.Errorf("\nНе верно удалилась запись в массиве\n%v\n%v", request, outusersession.Sessions)
+	if reflect.DeepEqual(request, outSessionStorage.Sessions) != true {
+		t.Errorf("\nНе верно удалилась сессия\n%v\n%v", request, outSessionStorage.Sessions)
 	}
-	fmt.Printf("По указанному id удалили массив %v\n", outusersession.Sessions)
+	fmt.Printf("По указанному index удалили сессию %v\n", outSessionStorage.Sessions)
 }
-func TestReceivelastIDSessionEmpty(t *testing.T) {
-	usmr := new(UserSessionsMemRepo)
-	if getLastSessionId(usmr) != 0 {
-		t.Errorf("Массив сообщений не пустой")
+func TestGetLastSessionIdEmpty(t *testing.T) {
+	sessionStorage := new(SessionStorageMemory)
+	if getLastSessionId(sessionStorage) != 0 {
+		t.Errorf("Данные о сессиях пресутсвуют")
 	}
-	fmt.Printf("Все хорошо!! массив пустой %v\n", getLastSessionId(usmr))
+	fmt.Println("Нет данных о сессиях")
 }
-func TestReceivelastIDSession(t *testing.T) {
+func TestGetLastSessionId(t *testing.T) {
 
-	usmr := new(UserSessionsMemRepo)
-	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: 4, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
-	if getLastSessionId(usmr) != 4 {
-		t.Errorf("Не верное выводиться id последней сессии")
+	sessionStorage := new(SessionStorageMemory)
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 4, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	if getLastSessionId(sessionStorage) != sessionStorage.Sessions[0].ID {
+		t.Errorf("Не верное выводиться index последней сессии")
 	}
-	fmt.Printf("Все хорошо!! Идентификатор последней сессии: %v\n", getLastSessionId(usmr))
+	fmt.Printf("Идентификатор последней сессии: %v\n", getLastSessionId(sessionStorage))
 }
 
-func TestDeleteSessionEmpty(t *testing.T) {
-	usmr := new(UserSessionsMemRepo)
-	api_token := ""
-	request, err := usmr.DeleteSession(api_token)
-	if request.Sessions != nil || len(request.Sessions) != 0 {
-		t.Errorf("Не удалось удалить сесcию, пустой токен")
-	}
+func TestDeleteSession(t *testing.T) {
+	sessionStorage := new(SessionStorageMemory)
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 4, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	api_token := "a396776f58b942fb9b10ebc798ab6303"
+	outSessionStorage := new(SessionStorageMemory)
+	outSessionStorage.Sessions = append(outSessionStorage.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	request, err := sessionStorage.Delete(api_token)
 
-	fmt.Printf("%v\n", err)
+	if reflect.DeepEqual(request.Sessions, outSessionStorage.Sessions) != true {
+		t.Errorf("\nНе верно удалилась сессия\n%v\n%v", request, outSessionStorage.Sessions)
+	}
+	fmt.Println(err)
+}
+func TestCreateSession(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 4, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	outSessionStorage := new(SessionStorageMemory)
+	request, _ := sessionStorage.Create(4)
+	outSessionStorage.Sessions = append(outSessionStorage.Sessions, SessionModel{ID: 5, UserId: 4, Auth_token: "4eadd229ce654553a9b2a8fd13efd00"})
+	if request == outSessionStorage.Sessions[0] {
+		t.Errorf("токены сессий одинаковые %v %v", outSessionStorage.Sessions[0], request)
+	}
+	fmt.Printf("Сессия создана: %v", request)
+
 }

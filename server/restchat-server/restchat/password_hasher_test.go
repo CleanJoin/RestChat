@@ -12,7 +12,6 @@ func TestCalculateHash(t *testing.T) {
 	request := "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
 	if outshas1 != request {
 		t.Errorf("Ошибка не верный вывод из функции")
-
 	}
 	fmt.Println(err)
 }

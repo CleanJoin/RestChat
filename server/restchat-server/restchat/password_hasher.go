@@ -15,7 +15,6 @@ type IPasswordHasher interface {
 func (*PasswordHasherSha1) CalculateHash(password string) (string, error) {
 	if password == "" {
 		return "", fmt.Errorf("%s", "Пароль пустой")
-
 	}
 	sha1 := sha1.New()
 	sha1.Write([]byte(password))
