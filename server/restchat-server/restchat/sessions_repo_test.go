@@ -10,8 +10,8 @@ func TestGetOnlineUserIds(t *testing.T) {
 	// sessionmemrep := new(UserSessionsMemRepo)
 
 	sessionmemrep := NewUserSessionsMemRepo(new(UuidSession))
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, Username: "Vasya", Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, Username: "Kolya", Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
 	userid := []int{1, 2}
 	request, err := sessionmemrep.GetOnlineUserIds()
 	if reflect.DeepEqual(request, userid) != false {
@@ -23,11 +23,11 @@ func TestGetOnlineUserIds(t *testing.T) {
 func TestDeleteSessionByIndex(t *testing.T) {
 
 	sessionmemrep := new(UserSessionsMemRepo)
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, Username: "Vasya", Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, Username: "Kolya", Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, UserId: 2, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
 
 	outusersession := new(UserSessionsMemRepo)
-	outusersession.Sessions = append(outusersession.Sessions, SessionModel{ID: 1, Username: "Vasya", Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	outusersession.Sessions = append(outusersession.Sessions, SessionModel{ID: 1, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
 	request := deleteSessionByIndex(sessionmemrep.Sessions, 1)
 
 	if reflect.DeepEqual(request, outusersession.Sessions) != true {
@@ -45,8 +45,8 @@ func TestReceivelastIDSessionEmpty(t *testing.T) {
 func TestReceivelastIDSession(t *testing.T) {
 
 	usmr := new(UserSessionsMemRepo)
-	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: 4, Username: "1", Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
-	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: 2, Username: "3", Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
+	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: 4, UserId: 1, Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
+	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: 2, UserId: 3, Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
 	if getLastSessionId(usmr) != 4 {
 		t.Errorf("Не верное выводиться id последней сессии")
 	}

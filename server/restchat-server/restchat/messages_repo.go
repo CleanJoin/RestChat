@@ -11,7 +11,7 @@ type MessagesMemRepo struct {
 }
 
 type IMessagesRepo interface {
-	Create(user_id int, text string) (MessageModel, error)
+	Create(user_id uint, text string) (MessageModel, error)
 	GetLast(n int) ([]MessageModel, error)
 }
 
@@ -19,7 +19,7 @@ func NewMessagesMemRepo() *MessagesMemRepo {
 	return &MessagesMemRepo{}
 }
 
-func ReceivelastIDMessage(mmr *MessagesMemRepo) int {
+func getLastMessageId(mmr *MessagesMemRepo) uint {
 	if mmr == nil || len(mmr.Messages) == 0 {
 		return 0
 	}
@@ -33,9 +33,9 @@ func ReceivelastIDMessage(mmr *MessagesMemRepo) int {
 // func DeleteAllMessagesMemRepo(mmr *MessagesMemRepo) *MessagesMemRepo {
 // }
 
-func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, error) {
+func (mmr *MessagesMemRepo) Create(user_id uint, text string) (MessageModel, error) {
 
-	id := ReceivelastIDMessage(mmr)
+	id := getLastMessageId(mmr)
 	id++
 	lenlastmessages := len(mmr.Messages)
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: id, UserId: user_id, Text: text, TimeMessage: time.Now()})
@@ -47,7 +47,7 @@ func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, erro
 	return mmr.Messages[len(mmr.Messages)-1], fmt.Errorf("cообщение создалось: %v", mmr.Messages[len(mmr.Messages)-1])
 }
 
-func (mmr *MessagesMemRepo) GetLastMessages(n int) ([]MessageModel, error) {
+func (mmr *MessagesMemRepo) GetLastMessages(n uint) ([]MessageModel, error) {
 
 	if mmr == nil || len(mmr.Messages) == 0 {
 		return mmr.Messages, fmt.Errorf("%s", "В памяти нет сообщений")

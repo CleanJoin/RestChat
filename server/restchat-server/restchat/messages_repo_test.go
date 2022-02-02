@@ -27,7 +27,7 @@ func TestgetLastMessageId(t *testing.T) {
 
 func TestCreateEmpty(t *testing.T) {
 	mmr := new(MessagesMemRepo)
-	user_id := 1
+	user_id := uint(1)
 	text := "Первое сообщение"
 	outmessage := new(MessagesMemRepo)
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 1, UserId: user_id, Text: text, TimeMessage: time.Now()})
@@ -42,7 +42,7 @@ func TestCreate(t *testing.T) {
 	mmr := new(MessagesMemRepo)
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", TimeMessage: time.Now()})
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
-	user_id := 1
+	user_id := uint(1)
 	text := "Первое сообщение"
 	outmessage := new(MessagesMemRepo)
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 1, Text: "Первое сообщение", TimeMessage: time.Now()})
@@ -56,7 +56,7 @@ func TestCreate(t *testing.T) {
 
 func TestGetLastEmpty(t *testing.T) {
 	mmr := new(MessagesMemRepo)
-	lastsqn := 3
+	lastsqn := uint(3)
 	request, err := mmr.GetLastMessages(lastsqn)
 	if request != nil || len(request) != 0 {
 		t.Errorf("Массив сообщений не пустой")
@@ -71,7 +71,7 @@ func TestGetLast(t *testing.T) {
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 	mmr.Messages = append(mmr.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 
-	lastsqn := 3
+	lastsqn := uint(3)
 
 	outmessage := new(MessagesMemRepo)
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
