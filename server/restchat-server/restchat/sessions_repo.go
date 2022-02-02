@@ -6,7 +6,8 @@ import (
 )
 
 type UserSessionsMemRepo struct {
-	Sessions []SessionModel
+	Sessions       []SessionModel
+	tokenGenerator ITokenGenerator
 }
 
 type IUserSessions interface {
@@ -15,10 +16,14 @@ type IUserSessions interface {
 	CreateSession(user_id int) (SessionModel, error)
 }
 
-func NewUserSessionsMemRepo() *UserSessionsMemRepo {
-	return &UserSessionsMemRepo{}
+func NewUserSessionsMemRepo(tokenGenerator ITokenGenerator) *UserSessionsMemRepo {
+	usmr := new(UserSessionsMemRepo)
+	usmr.tokenGenerator = tokenGenerator
+
+	return usmr
 }
 
+//
 func (usmr *UserSessionsMemRepo) GetOnlineUserIds() ([]int, error) {
 	usermemrep := new(UsersMemRepo)
 	var userid []int
@@ -47,7 +52,7 @@ func getLastSessionId(usmr *UserSessionsMemRepo) int {
 
 func (usmr *UserSessionsMemRepo) DeleteSession(api_token string) (UserSessionsMemRepo, error) {
 	if api_token == "" {
-		return *usmr, fmt.Errorf("%s%v", "Не удалось удалить сесию, пустой токен", *usmr)
+		return *usmr, fmt.Errorf("%s%v", "Не удалось удалить сессию, пустой токен", *usmr)
 	}
 	index := 0
 	for i, r := range usmr.Sessions {
@@ -60,24 +65,25 @@ func (usmr *UserSessionsMemRepo) DeleteSession(api_token string) (UserSessionsMe
 	return *usmr, fmt.Errorf("%s", "Не удалось удалить сессию, пустой токен")
 }
 
-func (usmr *UserSessionsMemRepo) CreateSession(user_id int) (SessionModel, error) {
+func (usmr *UserSessionsMemRepo) Create(user_id uint) (SessionModel, error) {
 	if user_id == 0 {
-		return SessionModel{ID: 0, Username: "", Auth_token: ""}, fmt.Errorf("%s", "Не удалось создать сесию, так как user_id пустой")
+		return SessionModel{ID: 0, Username: "", Auth_token: ""}, fmt.Errorf("%s", "Не удалось создать сессию, так как user_id пустой")
 	}
 	id := getLastSessionId(usmr)
 	id++
 	lenlastmessages := len(usmr.Sessions)
-	uuid := new(UuidSession)
-	authtoken, err := uuid.CreateUuid()
-	fmt.Println(err)
-	usermemrep := new(UsersMemRepo)
-	usermodel, err := usermemrep.GetById(user_id)
-	fmt.Println(err)
-	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: id, Username: usermodel.Username, Auth_token: authtoken})
+	// uuid := new(UuidSession)
+	// authtoken, err := uuid.Create()
+	// fmt.Println(err)
+	// usermemrep := new(UsersMemRepo)
+	// usermodel, err := usermemrep.GetById(user_id)
+	// fmt.Println(err)
+	authToken := usmr.tokenGenerator.Create()
+	usmr.Sessions = append(usmr.Sessions, SessionModel{ID: id, Username: usermodel.Username, Auth_token: authToken})
 
 	if lenlastmessages >= len(usmr.Sessions) {
 		return SessionModel{ID: 0, Username: "", Auth_token: ""}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
 
-	return usmr.Sessions[len(usmr.Sessions)-1], fmt.Errorf("cообщение создалось: %v", usmr.Sessions[len(usmr.Sessions)-1])
+	return usmr.Sessions[len(usmr.Sessions)-1], fmt.Errorf("сообщение создалось: %v", usmr.Sessions[len(usmr.Sessions)-1])
 }

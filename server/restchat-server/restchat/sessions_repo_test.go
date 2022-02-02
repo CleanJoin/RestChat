@@ -7,7 +7,9 @@ import (
 )
 
 func TestGetOnlineUserIds(t *testing.T) {
-	sessionmemrep := new(UserSessionsMemRepo)
+	// sessionmemrep := new(UserSessionsMemRepo)
+
+	sessionmemrep := NewUserSessionsMemRepo(new(UuidSession))
 	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 1, Username: "Vasya", Auth_token: "a396776f58b942fb9b10ebc798ab6303"})
 	sessionmemrep.Sessions = append(sessionmemrep.Sessions, SessionModel{ID: 2, Username: "Kolya", Auth_token: "713e50a0651541d9b973aba3ec04e1f1"})
 	userid := []int{1, 2}
