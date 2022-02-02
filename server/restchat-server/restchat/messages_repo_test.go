@@ -57,7 +57,7 @@ func TestCreate(t *testing.T) {
 func TestGetLastEmpty(t *testing.T) {
 	mmr := new(MessagesMemRepo)
 	lastsqn := 3
-	request, err := mmr.GetLast(lastsqn)
+	request, err := mmr.GetLastMessages(lastsqn)
 	if request != nil || len(request) != 0 {
 		t.Errorf("Массив сообщений не пустой")
 	}
@@ -78,7 +78,7 @@ func TestGetLast(t *testing.T) {
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второу сообщение чата", TimeMessage: time.Now()})
 
-	request, err := mmr.GetLast(lastsqn)
+	request, err := mmr.GetLastMessages(lastsqn)
 	fmt.Println(outmessage.Messages)
 	if reflect.DeepEqual(request, outmessage.Messages) != true {
 		t.Errorf("Не корретный список сообщений \n%v\n%v", request, outmessage.Messages)

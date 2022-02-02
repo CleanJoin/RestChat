@@ -47,7 +47,7 @@ func (mmr *MessagesMemRepo) Create(user_id int, text string) (MessageModel, erro
 	return mmr.Messages[len(mmr.Messages)-1], fmt.Errorf("cообщение создалось: %v", mmr.Messages[len(mmr.Messages)-1])
 }
 
-func (mmr *MessagesMemRepo) GetLast(n int) ([]MessageModel, error) {
+func (mmr *MessagesMemRepo) GetLastMessages(n int) ([]MessageModel, error) {
 
 	if mmr == nil || len(mmr.Messages) == 0 {
 		return mmr.Messages, fmt.Errorf("%s", "В памяти нет сообщений")
