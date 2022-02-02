@@ -6,57 +6,53 @@ import (
 	"time"
 )
 
-type MessagesMemRepo struct {
+type MessageStorageMemory struct {
 	Messages []MessageModel
 }
 
-type IMessagesRepo interface {
+type IMessageStorage interface {
 	Create(user_id uint, text string) (MessageModel, error)
-	GetLast(n int) ([]MessageModel, error)
+	GetLast(n uint) ([]MessageModel, error)
 }
 
-func NewMessagesMemRepo() *MessagesMemRepo {
-	return &MessagesMemRepo{}
+func NewMessageStorageMemory() *MessageStorageMemory {
+	return &MessageStorageMemory{}
 }
 
-func getLastMessageId(mmr *MessagesMemRepo) uint {
-	if mmr == nil || len(mmr.Messages) == 0 {
+func getLastMessageId(msm *MessageStorageMemory) uint {
+	if msm == nil || len(msm.Messages) == 0 {
 		return 0
 	}
-	sort.Slice(mmr.Messages, func(i, j int) (less bool) {
-		return mmr.Messages[i].ID > mmr.Messages[j].ID
+	sort.Slice(msm.Messages, func(i, j int) (less bool) {
+		return msm.Messages[i].ID > msm.Messages[j].ID
 	})
-	return mmr.Messages[0].ID
+	return msm.Messages[0].ID
 }
 
-// Нужно реализоавать функцию которая будет отчищать массим сообщений, при выходе всех пользователей
-// func DeleteAllMessagesMemRepo(mmr *MessagesMemRepo) *MessagesMemRepo {
-// }
+func (msm *MessageStorageMemory) Create(user_id uint, text string) (MessageModel, error) {
 
-func (mmr *MessagesMemRepo) Create(user_id uint, text string) (MessageModel, error) {
-
-	id := getLastMessageId(mmr)
+	id := getLastMessageId(msm)
 	id++
-	lenlastmessages := len(mmr.Messages)
-	mmr.Messages = append(mmr.Messages, MessageModel{ID: id, UserId: user_id, Text: text, TimeMessage: time.Now()})
+	lenlastmessages := len(msm.Messages)
+	msm.Messages = append(msm.Messages, MessageModel{ID: id, UserId: user_id, Text: text, TimeMessage: time.Now()})
 
-	if lenlastmessages >= len(mmr.Messages) {
+	if lenlastmessages >= len(msm.Messages) {
 		return MessageModel{ID: 0, UserId: 0, Text: "", TimeMessage: time.Time{}}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
 
-	return mmr.Messages[len(mmr.Messages)-1], fmt.Errorf("cообщение создалось: %v", mmr.Messages[len(mmr.Messages)-1])
+	return msm.Messages[len(msm.Messages)-1], fmt.Errorf("сообщение создалось: %v", msm.Messages[len(msm.Messages)-1])
 }
 
-func (mmr *MessagesMemRepo) GetLastMessages(n uint) ([]MessageModel, error) {
+func (msm *MessageStorageMemory) GetLast(n uint) ([]MessageModel, error) {
 
-	if mmr == nil || len(mmr.Messages) == 0 {
-		return mmr.Messages, fmt.Errorf("%s", "В памяти нет сообщений")
+	if msm == nil || len(msm.Messages) == 0 {
+		return msm.Messages, fmt.Errorf("%s", "В памяти нет сообщений")
 	}
 
-	sort.Slice(mmr.Messages, func(i, j int) (less bool) {
-		return mmr.Messages[i].ID > mmr.Messages[j].ID
+	sort.Slice(msm.Messages, func(i, j int) (less bool) {
+		return msm.Messages[i].ID > msm.Messages[j].ID
 	})
-	copylastmessages := mmr.Messages[0:n]
+	copylastmessages := msm.Messages[0:n]
 
-	return copylastmessages, fmt.Errorf("выгрузка удалась: %v", copylastmessages)
+	return copylastmessages, fmt.Errorf("последние сообщения получены: %v", copylastmessages)
 }
