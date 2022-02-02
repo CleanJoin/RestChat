@@ -1,21 +1,19 @@
 package restchat
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
 )
 
 type UuidSession struct {
-	UUID string
 }
 type ITokenGenerator interface {
-	CreateUuid() string
+	Create() string
 }
 
-func (*UuidSession) CreateUuid() (string, error) {
+func (*UuidSession) Create() string {
 	uuidWithHyphen := uuid.New()
 	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
-	return uuid, fmt.Errorf("uuid создан: %s", uuid)
+	return uuid
 }

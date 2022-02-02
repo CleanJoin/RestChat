@@ -1,16 +1,15 @@
 package restchat
 
 import (
-	"fmt"
 	"testing"
 )
 
-func TestCreateUuid(t *testing.T) {
+func TestCreateTokenGenerator(t *testing.T) {
 	var itg = new(UuidSession)
-	outuuid, err := itg.CreateUuid()
+	outuuid := itg.Create()
 	if outuuid == "" {
 		t.Errorf("Ошибка не верный вывод из функции")
 
 	}
-	fmt.Println(err)
+
 }
