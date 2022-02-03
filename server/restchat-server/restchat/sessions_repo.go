@@ -47,7 +47,7 @@ func getLastSessionId(ssm *SessionStorageMemory) uint {
 	return ssm.Sessions[0].ID
 }
 
-func (ssm *SessionStorageMemory) Delete(api_token string) (SessionStorageMemory, error) {
+func (ssm *SessionStorageMemory) Delete(api_token string) error {
 	index := 0
 	for i, r := range ssm.Sessions {
 		if r.Auth_token == api_token {
@@ -56,7 +56,7 @@ func (ssm *SessionStorageMemory) Delete(api_token string) (SessionStorageMemory,
 		}
 	}
 	ssm.Sessions = deleteSessionByIndex(ssm.Sessions, index)
-	return *ssm, fmt.Errorf("удалили сессию с токеном %s", api_token)
+	return fmt.Errorf("удалили сессию с токеном %s", api_token)
 }
 
 func (ssm *SessionStorageMemory) Create(user_id uint) (SessionModel, error) {
