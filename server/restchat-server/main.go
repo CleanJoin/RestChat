@@ -18,14 +18,14 @@ func main() {
 	session_storage.Create(2000)
 
 	router := gin.Default()
-	router.GET("/", func(ctx *gin.Context) {
+	router.GET("/api/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"error":   "Not implemented YET",
 			"message": "Kill",
 		})
 	})
 
-	router.GET("/user", func(ctx *gin.Context) {
+	router.GET("/api/user", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"error":   "Not implemented YET",
 			"message": "What your name?",
