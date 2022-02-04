@@ -20,9 +20,9 @@ func NewUserStorageMemory() *UserStorageMemory {
 func (usm *UserStorageMemory) Create(username string, password string) (UserModel, error) {
 	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("%s", "Не нашелся пользователь:")
 }
-func (usm *UserStorageMemory) GetByName(name string) (UserModel, error) {
+func (usm *UserStorageMemory) GetByName(username string) (UserModel, error) {
 	for i, r := range usm.Users {
-		if r.Username == name {
+		if r.Username == username {
 			return usm.Users[i], fmt.Errorf("нашелся пользователь: %v", usm.Users[i])
 		}
 	}

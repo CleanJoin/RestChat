@@ -40,9 +40,9 @@ func main() {
 func login_handler(session_storage restchat.ISessionStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session, _ := session_storage.Create(4000)
-		fmt.Println("handler func:", session.Auth_token)
+		fmt.Println("handler func:", session.AuthToken)
 		ctx.JSON(http.StatusOK, gin.H{
-			"api_token": session.Auth_token,
+			"api_token": session.AuthToken,
 		})
 	}
 }
