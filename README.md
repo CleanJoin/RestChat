@@ -44,9 +44,32 @@ git checkout development
 docker compose up --build
 ```
 
-Веб-приложение (фронтенд) доступно по адресу http://localhost:3000
+Полное веб-приложение (бэкенд + фронтэнд) доступно по адресу http://localhost:10000 (адреса, включающие /api/ перенаправляются - бэкенду, остальное - фронтенду)
+
+
+**Описание контейнеров тестовой среды**:
+
+| Название контейнера | Адрес | Описание |
+| --------------- |  ----------------- | --------------------------------------- |
+| proxy | http://localhost:10000/ | nginx сервер, работающий в качестве reverse-proxy, перенаправляет запросы бэкенду и фронтенду. |
+| restchat_client | http://localhost:3000/ | Сервер разработки react с автоматической пересборкой проекта и перезапуском. |
+| restchat_server | http://localhost:8000/api/ | Сервер разработки codegangsta/gin с автоматической пересборкой проекта и перезапуском. |
 
 Тестовые серверы как клиента (фронтенд), так и сервера (бекенд) настроены на автоматическую пересборку проекта и перезапуск сервера в случае изменений в исходных кодах в директории проекта. Директории с исходным кодом примонтированы внутри контейнеров тестового окружения.
+
+**Запуск тестов**
+
+**Тесты бэкенда**:
+
+```bash
+docker-compose run restchat_server /bin/bash -c 'cd restchat && go test .'
+```
+
+**Тесты фронтенда**:
+
+```bash
+docker-compose run restchat_client /bin/bash -c 'yarn test'
+```
 
 ---
 
@@ -148,7 +171,7 @@ git push
 Пример:
 
 ```json
-{time: "2022-02-04T08:02:56Z"}
+{"time": "2022-02-04T08:02:56Z"}
 ```
 
 Максимальная длина логина: 16 символов.
@@ -174,7 +197,7 @@ git push
 **Тело сообщения**:
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -186,7 +209,7 @@ git push
 **Данные запроса**:
 
 ```json
-{username: "string", password: "string"}
+{"username": "string", "password": "string"}
 ```
 
 **Успешная авторизация**:
@@ -196,7 +219,7 @@ git push
 ```
 
 ```json
-{auth_token: "string", member: {id: 12, name: "vasya"}}
+{"auth_token": "string", "member": {"id": 12, "name": "vasya"}}
 ```
 
 **Ошибка - Неправильный логин/пароль**:
@@ -206,7 +229,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -218,7 +241,7 @@ git push
 **Данные запроса**:
 
 ```json
-{username: "string", password: "string"}
+{"username": "string", "password": "string"}
 ```
 
 **Пользователь успешно создан**:
@@ -228,7 +251,7 @@ git push
 ```
 
 ```json
-{username: "string"}
+{"username": "string"}
 ```
 
 **Ошибка 1 - Пользователь уже существует**:
@@ -238,7 +261,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 **Ошибка 2 - Неправильный формат логина/пароля**:
@@ -248,7 +271,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -260,7 +283,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string"}
+{"api_token": "string"}
 ```
 
 **Пользователь успешно деавторизован**:
@@ -280,7 +303,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -292,7 +315,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string"}
+{"api_token": "string"}
 ```
 
 **Успешно получен список онлайн участников чата**:
@@ -303,9 +326,9 @@ git push
 
 ```json
 {
-	members: [
-		{id: 12, name: "vasya"},
-		{id: 14, name: "petya"},
+	"members": [
+		{"id": 12, "name": "vasya"},
+		{"id": 14, "name": "petya"}
 	]
 }
 ```
@@ -316,7 +339,7 @@ git push
 ```
 
 ```json
-{members: []}
+{"members": []}
 ```
 
 **Ошибка - Неправильный токен авторизации**:
@@ -326,7 +349,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -338,7 +361,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string"}
+{"api_token": "string"}
 ```
 
 **Успешное получение списка последних сообщений**:
@@ -349,9 +372,19 @@ git push
 
 ```json
 {
-	messages: [
-		{id: 1002, member_name: "petya", text: "hello", time: "2022-02-04T13:28:77Z"},
-		{id: 1001, member_name: "vasya", text: "hello", time: "2022-02-04T13:23:77Z"},
+	"messages": [
+		{
+			"id": 1002,
+			"member_name": "petya",
+			"text": "hello",
+			"time": "2022-02-04T13:28:77Z"
+		},
+		{
+			"id": 1001,
+			"member_name": "vasya",
+			"text": "hello",
+			"time": "2022-02-04T13:23:77Z"
+		}
 	]
 }
 ```
@@ -363,7 +396,7 @@ git push
 ```
 
 ```json
-{messages: []}
+{"messages": []}
 ```
 
 **Ошибка - Неправильный токен авторизации**:
@@ -373,7 +406,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -385,7 +418,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string", text: "string"}
+{"api_token": "string", "text": "string"}
 ```
 
 **Сообщение успешно создано**:
@@ -396,11 +429,11 @@ git push
 
 ```json
 {
-	message: {
-        id: 1002,
-        member_name: "petya",
-	    text: "hello",
-	    time: "2022-02-04T13:28:77Z"
+	"message": {
+        "id": 1002,
+        "member_name": "petya",
+	    "text": "hello",
+	    "time": "2022-02-04T13:28:77Z"
 	}
 }
 ```
@@ -412,7 +445,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 **Ошибка 2 - Пустое сообщение**:
@@ -422,7 +455,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
