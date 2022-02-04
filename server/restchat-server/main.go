@@ -32,7 +32,7 @@ func main() {
 		})
 	})
 
-	router.GET("/login", login_handler(session_storage))
+	router.GET("/api/login", login_handler(session_storage))
 
 	router.Run()
 }
