@@ -16,3 +16,11 @@ services:
       - 8000:3000
     volumes:
       - ./server/restchat-server/:/usr/src/restchat-server
+
+
+  proxy:
+    image: nginx:latest
+    ports:
+      - 10000:10000
+    volumes:
+    - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
