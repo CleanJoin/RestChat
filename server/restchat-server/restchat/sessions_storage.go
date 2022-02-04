@@ -31,7 +31,7 @@ func (ssm *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
 	for _, r := range ssm.Sessions {
 		onlineUsers = append(onlineUsers, r.UserId)
 	}
-	return onlineUsers, fmt.Errorf("список пользователей онлайн:%v", onlineUsers)
+	return onlineUsers, nil
 }
 func deleteSessionByIndex(sm []SessionModel, index int) []SessionModel {
 	return append(sm[:index], sm[index+1:]...)
@@ -56,7 +56,7 @@ func (ssm *SessionStorageMemory) Delete(apiToken string) error {
 		}
 	}
 	ssm.Sessions = deleteSessionByIndex(ssm.Sessions, index)
-	return fmt.Errorf("удалили сессию с токеном %s", apiToken)
+	return nil
 }
 
 func (ssm *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
@@ -71,5 +71,5 @@ func (ssm *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
 		return SessionModel{ID: 0, UserId: 0, AuthToken: ""}, fmt.Errorf("не удалось добавить сообщение")
 	}
 
-	return ssm.Sessions[len(ssm.Sessions)-1], fmt.Errorf("сообщение создалось: %v", ssm.Sessions[len(ssm.Sessions)-1])
+	return ssm.Sessions[len(ssm.Sessions)-1], nil
 }
