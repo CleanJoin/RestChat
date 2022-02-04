@@ -1,6 +1,6 @@
 FROM node
 
-CMD mkdir -p /usr/src/restchat-client
+RUN mkdir -p /usr/src/restchat-client
 
 WORKDIR /usr/src/restchat-client
 
