@@ -6,11 +6,11 @@
 
 Приложение представляет собой клиент-серверное приложение "веб-чат" с простейшими функциями регистрации, авторизации, отправки и приема сообщений, вывода списка онлайн участников.
 
-Взаимодействие между клиентом и сервером производится посредством Rest-like HTTP API.
+Взаимодействие между клиентом и сервером производится посредством RESTFUL HTTP API.
 
 ### Технологический стек
 
-![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)  ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)  ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 ### Функциональные требования
 
@@ -31,9 +31,9 @@
 - Клиент-серверная архитектура
 - REST api
 - Формат данных между клиентом и сервером JSON
-- Бэкэнд - веб-свервер на Golang
-- Фронтэнд - SPA на React.js
-- Контейнеризация (Docker, Docker-compose)
+- Бэкенд - веб-сервер на Golang
+- Фронтенд - SPA на React.js
+- Контейнеризация (Docker, Docker-compose) тестовой среды
 - ? Интеграционные end to end тесты (selenium)
 - ? CI/CD
 
@@ -59,12 +59,39 @@
 
 ### REST API
 
-#### Общая ошибка формата ЗАПРОСА
+---
+
+#### **Форматы данных и ограничения**
+
+Формат даты и времени: ISO 8601, часовой пояс UTC
+
+Пример:
+
+```json
+{time: "2022-02-04T08:02:56Z"}
+```
+
+Максимальная длина логина: 16 символов.
+
+Разрешенные символы для логина: [a-zA-Z0-9_].
+
+Максимальная длина пароля: 32 символа.
+
+Максимальная длина сообщения: 1024 символа.
+
+---
+
+#### **Общая ошибка формата запроса от клиента**
 
 Общая ошибка для наименования или количества полей в json запросе от клиента. Например, запрос на авторизацию обязательно должен содержать поля username и password, ошибка выдается в случае нарушения данных требований.
 
-Код ошибки: 400 Bad Request
-Тело сообщения:
+**Код ошибки**:
+
+```http
+400 Bad Request
+```
+
+**Тело сообщения**:
 
 ```json
 {error: "error_message"}
@@ -72,119 +99,198 @@
 
 ---
 
-#### POST /api/login
+#### **POST /api/login**
 
-Клиентские данные:
+**Описание**: Авторизация с помощью логина и пароля. В случае успеха сервер возвращает токен авторизации и информацию о пользователе (участнике чата). После авторизации создается новая сессия и пользователь считается онлайн до момента деавторизации (удаления сессии). Если ранее у пользователя была создана активная сессия, то она удаляется и заменяется новой (старый пользователь деавторизован).
+
+**Данные запроса**:
 
 ```json
 {username: "string", password: "string"}
 ```
 
-Серверные данные:
+**Успешная авторизация**:
 
-Успех: 200 OK
+```http
+200 OK
+```
 
 ```json
 {auth_token: "string", member: {id: 12, name: "vasya"}}
 ```
-Ошибка: 401 Unauthorized, {error: "error_message"}
+
+**Ошибка - Неправильный логин/пароль**:
+
+```http
+401 Unauthorized
+```
+
+```json
+{error: "error_message"}
+```
 
 ---
 
-#### POST /api/user
-Клиентские данные:
+#### **POST /api/user**
+
+**Описание**: Создание нового пользователя (регистрация) с заданным паролем. В случае успеха клиенту возвращается обратно имя созданного пользователя.
+
+**Данные запроса**:
 
 ```json
 {username: "string", password: "string"}
 ```
 
-Серверные данные:
- Успех: 201 Created,
+**Пользователь успешно создан**:
+
+```http
+201 Created
+```
 
 ```json
 {username: "string"}
 ```
 
-	Ошибка:
-  1) пользователь уже существует
-   403 Forbidden
+**Ошибка 1 - Пользователь уже существует**:
+
+```http
+403 Forbidden
+```
+
 ```json
 {error: "error_message"}
 ```
-  2) не правильный формат логина/пароля
-   400 Bad Request
 
----
+**Ошибка 2 - Неправильный формат логина/пароля**:
 
-#### POST /api/logout
-Клиентские данные:
-```json
-{api_token: "string"}
+```http
+400 Bad Request
 ```
-Серверные данные:
- Успех: 200 OK, {}
-	Ошибка:
-  1) Неправильный токен
-   400 Bad Request
+
 ```json
 {error: "error_message"}
 ```
 
 ---
 
-#### GET /api/members
-Клиентские данные:
+#### **POST /api/logout**
+
+**Описание**: Деавторизация пользователя (выход из чата, закрытие, удаление текущей сессии). После деавторизации пользователь больше не считается онлайн.
+
+**Данные запроса**:
+
 ```json
 {api_token: "string"}
 ```
-Серверные данные:
- Успех: 200 OK:
+
+**Пользователь успешно деавторизован**:
+
+```http
+200 OK
+```
+
+```json
+{}
+```
+
+**Ошибка - Неправильный токен**:
+
+```http
+400 Bad Request
+```
+
+```json
+{error: "error_message"}
+```
+
+---
+
+#### **GET /api/members**
+
+**Описание**: Получения списка участников чата (онлайн пользователей, авторизованных). Список передается только авторизованным пользователям, корректно предъявившим токен авторизации.
+
+**Данные запроса**:
+
+```json
+{api_token: "string"}
+```
+
+**Успешно получен список онлайн участников чата**:
+
+```http
+200 OK
+```
+
 ```json
 {
-    members: [
-        {id: 12, name: "vasya"},
-        {id: 14, name: "petya"},
-    ]
+	members: [
+		{id: 12, name: "vasya"},
+		{id: 14, name: "petya"},
+	]
 }
 ```
-Либо, в случае пустого списка пользователей:
+Успех, но в случае пустого списка пользователей:
+
+```http
+200 OK
+```
+
 ```json
 {members: []}
 ```
-Ошибка:
-  1) Неправильный токен
-   400 Bad Request
+
+**Ошибка - Неправильный токен авторизации**:
+
+```http
+400 Bad Request
+```
+
 ```json
 {error: "error_message"}
 ```
 
 ---
 
-#### GET /api/messages
-Клиентские данные:
+#### **GET /api/messages**
+
+**Описание**: Получения полного списка последних сообщений в чате. Доступен только для авторизованных пользователей, предъявивших корректный токен авторизации.
+
+**Данные запроса**:
+
 ```json
 {api_token: "string"}
 ```
-Серверные данные:
- Успех: 200 OK:
+
+**Успешное получение списка последних сообщений**:
+
+```http
+200 OK
+```
 
 ```json
 {
-    messages: [
-        {id: 1002, member_name: "petya", text: "hello", time: "13:28:77"},
-        {id: 1001, member_name: "vasya", text: "hello", time: "13:23:77"},
-    ]
+	messages: [
+		{id: 1002, member_name: "petya", text: "hello", time: "2022-02-04T13:28:77Z"},
+		{id: 1001, member_name: "vasya", text: "hello", time: "2022-02-04T13:23:77Z"},
+	]
 }
 ```
 
-Либо в случае отсутствия сообщений, пустой ответ:
+Либо в случае отсутствия сообщений, пустой список сообщений:
+
+```http
+200 OK
+```
 
 ```json
 {messages: []}
 ```
-    Ошибка:
-  1) Неправильный токен
-   400 Bad Request
+
+**Ошибка - Неправильный токен авторизации**:
+
+```http
+400 Bad Request
+```
 
 ```json
 {error: "error_message"}
@@ -192,27 +298,51 @@
 
 ---
 
-#### POST /api/message
+#### **POST /api/message**
 
-Клиентские данные:
+**Описание**: Отправка (создание) нового сообщения. Доступна только авторизованным пользователям. Клиент обязан передать токен авторизации и текст сообщения. В случае успеха клиенту возвращаются данные созданного сообщения. Текст сообщения не может быть пустым.
+
+**Данные запроса**:
 
 ```json
 {api_token: "string", text: "string"}
 ```
 
-Серверные данные:
- Успех: 200 OK:
-```json
-{message: {
-  id: 1002,
-  member_name: "petya",
-  text: "hello",
-  time: "13:28:77"
- },
+**Сообщение успешно создано**:
+
+```http
+200 OK
 ```
-Ошибка:
-1) Неправильный токен - 400 Bad Request
+
+```json
+{
+	message: {
+        id: 1002,
+        member_name: "petya",
+	    text: "hello",
+	    time: "2022-02-04T13:28:77Z"
+	}
+}
+```
+
+**Ошибка 1 - Неправильный токен**:
+
+```http
+400 Bad Request
+```
 
 ```json
 {error: "error_message"}
 ```
+
+**Ошибка 2 - Пустое сообщение**:
+
+```http
+400 Bad Request
+```
+
+```json
+{error: "error_message"}
+```
+
+---
