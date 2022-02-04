@@ -44,7 +44,7 @@ git checkout development
 docker compose up --build
 ```
 
-Полное веб-приложение (бэкенд + фронтэнд) доступно по адресу http://localhost:10000 (адреса, включающие /api/ перенаправляются - бэкенду, остальное - фронтенду)
+Полное веб-приложение (бэкенд + фронтенд) доступно по адресу http://localhost:10000 (адреса, включающие /api/ перенаправляются - бэкенду, остальное - фронтенду)
 
 
 **Описание контейнеров тестовой среды**:
@@ -62,13 +62,13 @@ docker compose up --build
 **Тесты бэкенда**:
 
 ```bash
-docker-compose run restchat_server /bin/bash -c 'cd restchat && go test .'
+docker-compose run restchat_server go test restchat-server/restchat
 ```
 
 **Тесты фронтенда**:
 
 ```bash
-docker-compose run restchat_client /bin/bash -c 'yarn test'
+docker-compose run restchat_client yarn test
 ```
 
 ---
