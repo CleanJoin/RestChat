@@ -171,7 +171,7 @@ git push
 Пример:
 
 ```json
-{time: "2022-02-04T08:02:56Z"}
+{"time": "2022-02-04T08:02:56Z"}
 ```
 
 Максимальная длина логина: 16 символов.
@@ -197,7 +197,7 @@ git push
 **Тело сообщения**:
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -209,7 +209,7 @@ git push
 **Данные запроса**:
 
 ```json
-{username: "string", password: "string"}
+{"username": "string", "password": "string"}
 ```
 
 **Успешная авторизация**:
@@ -219,7 +219,7 @@ git push
 ```
 
 ```json
-{auth_token: "string", member: {id: 12, name: "vasya"}}
+{"auth_token": "string", "member": {"id": 12, "name": "vasya"}}
 ```
 
 **Ошибка - Неправильный логин/пароль**:
@@ -229,7 +229,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -241,7 +241,7 @@ git push
 **Данные запроса**:
 
 ```json
-{username: "string", password: "string"}
+{"username": "string", "password": "string"}
 ```
 
 **Пользователь успешно создан**:
@@ -251,7 +251,7 @@ git push
 ```
 
 ```json
-{username: "string"}
+{"username": "string"}
 ```
 
 **Ошибка 1 - Пользователь уже существует**:
@@ -261,7 +261,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 **Ошибка 2 - Неправильный формат логина/пароля**:
@@ -271,7 +271,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -283,7 +283,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string"}
+{"api_token": "string"}
 ```
 
 **Пользователь успешно деавторизован**:
@@ -303,7 +303,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -315,7 +315,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string"}
+{"api_token": "string"}
 ```
 
 **Успешно получен список онлайн участников чата**:
@@ -326,9 +326,9 @@ git push
 
 ```json
 {
-	members: [
-		{id: 12, name: "vasya"},
-		{id: 14, name: "petya"},
+	"members": [
+		{"id": 12, "name": "vasya"},
+		{"id": 14, "name": "petya"}
 	]
 }
 ```
@@ -339,7 +339,7 @@ git push
 ```
 
 ```json
-{members: []}
+{"members": []}
 ```
 
 **Ошибка - Неправильный токен авторизации**:
@@ -349,7 +349,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -361,7 +361,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string"}
+{"api_token": "string"}
 ```
 
 **Успешное получение списка последних сообщений**:
@@ -372,9 +372,19 @@ git push
 
 ```json
 {
-	messages: [
-		{id: 1002, member_name: "petya", text: "hello", time: "2022-02-04T13:28:77Z"},
-		{id: 1001, member_name: "vasya", text: "hello", time: "2022-02-04T13:23:77Z"},
+	"messages": [
+		{
+			"id": 1002,
+			"member_name": "petya",
+			"text": "hello",
+			"time": "2022-02-04T13:28:77Z"
+		},
+		{
+			"id": 1001,
+			"member_name": "vasya",
+			"text": "hello",
+			"time": "2022-02-04T13:23:77Z"
+		}
 	]
 }
 ```
@@ -386,7 +396,7 @@ git push
 ```
 
 ```json
-{messages: []}
+{"messages": []}
 ```
 
 **Ошибка - Неправильный токен авторизации**:
@@ -396,7 +406,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
@@ -408,7 +418,7 @@ git push
 **Данные запроса**:
 
 ```json
-{api_token: "string", text: "string"}
+{"api_token": "string", "text": "string"}
 ```
 
 **Сообщение успешно создано**:
@@ -419,11 +429,11 @@ git push
 
 ```json
 {
-	message: {
-        id: 1002,
-        member_name: "petya",
-	    text: "hello",
-	    time: "2022-02-04T13:28:77Z"
+	"message": {
+        "id": 1002,
+        "member_name": "petya",
+	    "text": "hello",
+	    "time": "2022-02-04T13:28:77Z"
 	}
 }
 ```
@@ -435,7 +445,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 **Ошибка 2 - Пустое сообщение**:
@@ -445,7 +455,7 @@ git push
 ```
 
 ```json
-{error: "error_message"}
+{"error": "error_message"}
 ```
 
 ---
