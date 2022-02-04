@@ -1,5 +1,7 @@
 ## RestChat
 
+---
+
 ### Описание проекта
 
 Данный проект создан в обучающих целях. Назначение - обучение простейшим навыкам проектирования, командной работы над проектом. Тренировка навыков программирования. Использования тестового окружения с применением контейнеризации.
@@ -8,9 +10,45 @@
 
 Взаимодействие между клиентом и сервером производится посредством RESTFUL HTTP API.
 
+---
+
 ### Технологический стек
 
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)  ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+
+---
+
+### Среда для разработки и тестирования
+
+Тестовая среда организована с помощью контейнеризации и утилиты оркестрации Docker-Compose.
+
+Для разворачивания среды разработки необходимо установить [Docker](https://docker.org/), [Docker-Compose](https://github.com/docker/compose) и [Git](https://git-scm.com/)
+
+```bash
+# Ubuntu 18.04, 20.04
+sudo apt install docker.io docker-compose git
+```
+
+Далее клонировать репозиторий:
+
+```bash
+git clone https://github.com/CleanJoin/RestChat.git
+
+# Текущая разрабатываемая версия приложения в ветке development
+git checkout development
+```
+
+Запуск тестовой среды:
+
+```bash
+docker compose up --build
+```
+
+Веб-приложение (фронтенд) доступно по адресу http://localhost:3000
+
+Тестовые серверы как клиента (фронтенд), так и сервера (бекенд) настроены на автоматическую пересборку проекта и перезапуск сервера в случае изменений в исходных кодах в директории проекта. Директории с исходным кодом примонтированы внутри контейнеров тестового окружения.
+
+---
 
 ### Функциональные требования
 
@@ -26,6 +64,8 @@
 - Ограничения формата пользователя
 - Ограничения формата сообщения
 
+---
+
 ### Архитектурные требования
 
 - Клиент-серверная архитектура
@@ -36,6 +76,8 @@
 - Контейнеризация (Docker, Docker-compose) тестовой среды
 - ? Интеграционные end to end тесты (selenium)
 - ? CI/CD
+
+---
 
 ### Макеты страниц
 
@@ -57,9 +99,9 @@
 - Logout - кнопка деавторизации (выход из чата)
 - Message - текстовое поле для отправки сообщения (отправка по нажатию Enter)
 
-### REST API
-
 ---
+
+### REST API
 
 #### **Форматы данных и ограничения**
 
