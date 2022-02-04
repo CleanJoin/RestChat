@@ -1,4 +1,17 @@
 ## RestChat
+
+### Описание проекта
+
+Данный проект создан в обучающих целях. Назначение - обучение простейшим навыкам проектирования, командной работы над проектом. Тренировка навыков программирования. Использования тестового окружения с применением контейнеризации.
+
+Приложение представляет собой клиент-серверное приложение "веб-чат" с простейшими функциями регистрации, авторизации, отправки и приема сообщений, вывода списка онлайн участников.
+
+Взаимодействие между клиентом и сервером производится посредством Rest-like HTTP API.
+
+### Технологический стек
+
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)  ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+
 ### Функциональные требования
 
 - Регистрация (register)
