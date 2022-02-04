@@ -59,15 +59,13 @@ docker compose up --build
 
 **Запуск тестов**
 
-Тесты бэкенда:
-
-Требуется устл
+**Тесты бэкенда**:
 
 ```bash
 docker-compose run restchat_server /bin/bash -c 'cd restchat && go test .'
 ```
 
-Тесты фронтенда:
+**Тесты фронтенда**:
 
 ```bash
 docker-compose run restchat_client /bin/bash -c 'yarn test'
