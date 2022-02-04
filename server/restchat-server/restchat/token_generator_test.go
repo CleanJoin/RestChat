@@ -1,7 +1,6 @@
 package restchat
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -11,5 +10,8 @@ func TestCreateTokenGenerator(t *testing.T) {
 	if uuid == "" {
 		t.Errorf("Ошибка не верный вывод из функции")
 	}
-	fmt.Printf("UUID Готов: %s", uuid)
+}
+func TestITokenGenerator(t *testing.T) {
+	inter := new(TokenGeneratorUUID)
+	inter.Create()
 }

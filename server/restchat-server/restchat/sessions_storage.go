@@ -64,12 +64,9 @@ func (ssm *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
 	sessionId++
 	lenCurrentMessages := len(ssm.Sessions)
 	authToken := ssm.tokenGenerator.Create()
-	fmt.Println(authToken)
 	ssm.Sessions = append(ssm.Sessions, SessionModel{ID: sessionId, UserId: userId, AuthToken: authToken})
-
 	if lenCurrentMessages >= len(ssm.Sessions) {
 		return SessionModel{ID: 0, UserId: 0, AuthToken: ""}, fmt.Errorf("не удалось добавить сообщение")
 	}
-
 	return ssm.Sessions[len(ssm.Sessions)-1], nil
 }

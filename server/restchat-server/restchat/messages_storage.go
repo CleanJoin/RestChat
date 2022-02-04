@@ -30,6 +30,7 @@ func getLastMessageId(msm *MessageStorageMemory) uint {
 }
 
 func (msm *MessageStorageMemory) Create(userId uint, text string) (MessageModel, error) {
+
 	id := getLastMessageId(msm)
 	id++
 	lenlastmessages := len(msm.Messages)
@@ -38,10 +39,12 @@ func (msm *MessageStorageMemory) Create(userId uint, text string) (MessageModel,
 	if lenlastmessages >= len(msm.Messages) {
 		return MessageModel{ID: 0, UserId: 0, Text: "", Time: time.Time{}}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
+
 	return msm.Messages[len(msm.Messages)-1], nil
 }
 
 func (msm *MessageStorageMemory) GetLast(n uint) ([]MessageModel, error) {
+
 	if msm == nil || len(msm.Messages) == 0 {
 		return msm.Messages, fmt.Errorf("%s", "В памяти нет сообщений")
 	}
