@@ -9,14 +9,14 @@ type UserModel struct {
 }
 
 type SessionModel struct {
-	ID         uint   `json:"id"`
-	UserId     uint   `json:"name"`
-	Auth_token string `json:"auth_token"`
+	ID        uint   `json:"id"`
+	UserId    uint   `json:"name"`
+	AuthToken string `json:"auth_token"`
 }
 
 type MessageModel struct {
-	ID          uint      `json:"id"`
-	UserId      uint      `json:",omitempty"`
-	Text        string    `json:"text"`
-	TimeMessage time.Time `json:"time"` //utc
+	ID     uint      `json:"id"`
+	UserId uint      `json:",omitempty"`
+	Text   string    `json:"text"`
+	Time   time.Time `json:"time"` //utc
 }
