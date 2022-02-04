@@ -54,17 +54,18 @@ func TestGetLastEmpty(t *testing.T) {
 
 func TestGetLast(t *testing.T) {
 	msm := new(MessageStorageMemory)
-	msm.Messages = append(msm.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: time.Now()})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
+	newTime := time.Now()
+
+	msm.Messages = append(msm.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
+	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	msm.Messages = append(msm.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	msm.Messages = append(msm.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 
 	lastSequence := uint(3)
-
 	outmessage := new(MessageStorageMemory)
-	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
-	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
-	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 
 	request, err := msm.GetLast(lastSequence)
 	if reflect.DeepEqual(request, outmessage.Messages) != true {
