@@ -24,16 +24,18 @@ func TestGetLastMessageId(t *testing.T) {
 
 func TestCreateMessage(t *testing.T) {
 	msm := new(MessageStorageMemory)
-	msm.Messages = append(msm.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: time.Now()})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
+	newTime := time.Now()
+
+	msm.Messages = append(msm.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
+	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 	user_id := uint(1)
 	text := "Первое сообщение"
 	outmessage := new(MessageStorageMemory)
-	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 1, Text: "Первое сообщение", Time: time.Now()})
+	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 1, Text: "Первое сообщение", Time: newTime})
 	request, err := msm.Create(user_id, text)
 
-	if request != outmessage.Messages[0] {
-		t.Errorf("Ошибка не верный вывод из функции")
+	if request.ID != outmessage.Messages[0].ID {
+		t.Errorf("Ошибка не верный вывод из функции %v,%v", request, outmessage.Messages[0])
 	}
 	if err != nil {
 		t.Errorf("Сообщение не создалось %v", err)
