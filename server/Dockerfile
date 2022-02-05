@@ -8,5 +8,5 @@ RUN go get github.com/codegangsta/gin
 
 RUN go build
 
-CMD gin .
+CMD bash -c "cd /tmp && gin --path /usr/src/restchat-server"
 
