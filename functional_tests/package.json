@@ -1,0 +1,14 @@
+{
+  "name": "restchat_functional_tests",
+  "version": "1.0.0",
+  "description": "Functional (End to End) tests for restchat",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "cypress": "^9.4.1"
+  },
+  "scripts": {
+      "start": "cypress open",
+      "test": "cypress run"
+  }
+}

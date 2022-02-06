@@ -17,10 +17,19 @@ services:
     volumes:
       - ./server/restchat-server/:/usr/src/restchat-server
 
-
   proxy:
     image: nginx:latest
     ports:
       - 10000:10000
     volumes:
     - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  functional_tests:
+    build: functional_tests 
+    volumes:
+    - ./functional_tests/cypress/:/usr/src/functional_tests/cypress/
+    depends_on:
+      - restchat_client
+      - restchat_server
+      - proxy 
+    command: echo "Run functional tests with 'docker-compose run functional_tests yarn cypress run'"
