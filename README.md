@@ -71,6 +71,20 @@ docker-compose run restchat_server go test restchat-server/restchat
 docker-compose run restchat_client yarn test
 ```
 
+**Функциональные тесты**
+
+```bash
+docker-compose run functional_tests yarn cypress run
+```
+
+Запуск в интерактивном режиме без контейнера:
+
+```bash
+cd functional_tests
+yarn install
+yarn start
+```
+
 ---
 
 ### Организация репозитория исходных кодов
