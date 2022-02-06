@@ -5,10 +5,11 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "cypress": "^9.4.1"
+    "cypress": "^9.4.1",
+    "http-status-codes": "^2.2.0"
   },
   "scripts": {
-      "start": "cypress open",
-      "test": "cypress run"
+    "start": "cypress open",
+    "test": "cypress run"
   }
 }
