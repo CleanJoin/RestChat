@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"restchat-server/restchat"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,6 +34,13 @@ func main() {
 	})
 
 	router.GET("/api/login", login_handler(session_storage))
+
+	router.GET("/api/health", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"time":    time.Now().Format(time.RFC3339),
+		})
+	})
 
 	router.Run()
 }
