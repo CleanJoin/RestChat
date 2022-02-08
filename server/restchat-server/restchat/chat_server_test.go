@@ -34,7 +34,4 @@ func TestMessagesHandler(t *testing.T) {
 	req, _ := http.NewRequest("GET", "http://localhost:10000/api/messages", nil)
 	fmt.Println(w, req)
 
-	// assert.Equal(t, 200, w.Code)
-	// assert.Equal(t, "pong", w.Body.String())
-
 }
