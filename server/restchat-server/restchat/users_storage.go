@@ -11,10 +11,10 @@ type UserStorageMemory struct {
 }
 
 type IUserStorage interface {
-	Create(username string, password string) UserModel
-	GetByName(name string) UserModel
-	GetById(id uint) UserModel
-	GetByIds(ids []uint) []UserModel
+	Create(username string, password string) (UserModel, error)
+	GetByName(name string) (UserModel, error)
+	GetById(id uint) (UserModel, error)
+	GetByIds(ids []uint) ([]UserModel, error)
 }
 
 func NewUserStorageMemory(passwordHasher IPasswordHasher) *UserStorageMemory {
@@ -22,55 +22,55 @@ func NewUserStorageMemory(passwordHasher IPasswordHasher) *UserStorageMemory {
 	ssm.passwordHasher = passwordHasher
 	return ssm
 }
-func getLastUserId(usm *UserStorageMemory) uint {
-	if usm == nil || len(usm.Users) == 0 {
+func getLastUserId(userStorage *UserStorageMemory) uint {
+	if userStorage == nil || len(userStorage.Users) == 0 {
 		return 0
 	}
-	sort.Slice(usm.Users, func(i, j int) (less bool) {
-		return usm.Users[i].ID > usm.Users[j].ID
+	sort.Slice(userStorage.Users, func(i, j int) (less bool) {
+		return userStorage.Users[i].ID > userStorage.Users[j].ID
 	})
-	return usm.Users[0].ID
+	return userStorage.Users[0].ID
 }
 
-func (usm *UserStorageMemory) Create(username string, password string) (UserModel, error) {
-	id := getLastUserId(usm)
+func (userStorage *UserStorageMemory) Create(username string, password string) (UserModel, error) {
+	id := getLastUserId(userStorage)
 	id++
-	lenlastuser := len(usm.Users)
-	passwordHash := usm.passwordHasher.CalculateHash(password)
-	usm.Users = append(usm.Users, UserModel{ID: id, Username: username, PasswordHash: passwordHash})
-	if lenlastuser >= len(usm.Users) {
+	lenlastuser := len(userStorage.Users)
+	passwordHash := userStorage.passwordHasher.CalculateHash(password)
+	userStorage.Users = append(userStorage.Users, UserModel{ID: id, Username: username, PasswordHash: passwordHash})
+	if lenlastuser >= len(userStorage.Users) {
 		return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
-	return usm.Users[len(usm.Users)-1], nil
+	return userStorage.Users[len(userStorage.Users)-1], nil
 }
 
-func (usm *UserStorageMemory) GetByName(username string) (UserModel, error) {
-	for i, r := range usm.Users {
+func (userStorage *UserStorageMemory) GetByName(username string) (UserModel, error) {
+	for i, r := range userStorage.Users {
 		if r.Username == username {
-			return usm.Users[i], nil
+			return userStorage.Users[i], nil
 		}
 	}
 	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("не нашелся пользователь по указанному Username: %v", username)
 }
 
-func (usm *UserStorageMemory) GetById(id uint) (UserModel, error) {
-	for i, r := range usm.Users {
+func (userStorage *UserStorageMemory) GetById(id uint) (UserModel, error) {
+	for i, r := range userStorage.Users {
 		if r.ID == id {
-			return usm.Users[i], nil
+			return userStorage.Users[i], nil
 		}
 	}
 	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("пользователь с указанным id:%v не нашелся ", id)
 }
 
-func (usm *UserStorageMemory) GetByIds(ids []uint) ([]UserModel, error) {
+func (userStorage *UserStorageMemory) GetByIds(ids []uint) ([]UserModel, error) {
 	idIndexer := make(map[uint]uint)
 	newUserStorage := new(UserStorageMemory)
-	for index, user := range usm.Users {
+	for index, user := range userStorage.Users {
 		idIndexer[user.ID] = uint(index)
 	}
 	for _, id := range ids {
 		if val, ok := idIndexer[id]; ok {
-			newUserStorage.Users = append(newUserStorage.Users, UserModel{ID: id, Username: usm.Users[val].Username, PasswordHash: usm.Users[val].PasswordHash})
+			newUserStorage.Users = append(newUserStorage.Users, UserModel{ID: id, Username: userStorage.Users[val].Username, PasswordHash: userStorage.Users[val].PasswordHash})
 		}
 
 	}
