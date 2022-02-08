@@ -31,26 +31,27 @@ func NewChatServerGin(host string, port int, maxLastMessages uint) *ChatServerGi
 }
 
 func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUserStorage, messageStorage IMessageStorage) {
-	ChatServerGin := NewChatServerGin("localhost", 300, 8080)
-	ChatServerGin.router = gin.Default()
+	// ChatServerGin := NewChatServerGin("localhost", 300, 8080)
+	chat.router = gin.Default()
 	chat.sessionStorage = sessionStorage
 	chat.messageStorage = messageStorage
 	chat.userStorage = userStorage
 	// Конфигурируем все эндпоинты
-	ChatServerGin.router.POST("/api/user", userHandler(chat.userStorage))
-	ChatServerGin.router.POST("/api/login", loginHandler(chat.sessionStorage))
-	ChatServerGin.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
-	ChatServerGin.router.GET("/api/members", membersHandler(chat.sessionStorage))
-	ChatServerGin.router.GET("/api/messages", messagesHandler(chat.messageStorage, ChatServerGin.maxLastMessages))
-	ChatServerGin.router.POST("/api/message", messageHandler(chat.messageStorage))
+	// ChatServerGin.router.POST("/api/user", userHandler(chat.userStorage))
+	chat.router.POST("/api/login", loginHandler(chat.sessionStorage))
+	// ChatServerGin.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
+	// ChatServerGin.router.GET("/api/members", membersHandler(chat.sessionStorage))
+	// ChatServerGin.router.GET("/api/messages", messagesHandler(chat.messageStorage, ChatServerGin.maxLastMessages))
+
+	// ChatServerGin.router.POST("/api/message", messageHandler(chat.messageStorage))
 }
 
 func (chat *ChatServerGin) Run() error {
 	if chat.router != nil {
 		return fmt.Errorf("gin не сконфигурирован %v", chat.router)
 	}
-	chat.router.Run()
-	return nil
+	return chat.router.Run()
+
 }
 
 func loginHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
@@ -58,14 +59,14 @@ func loginHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 		requestTask := new(RequestTask)
 		ctx.BindJSON(&requestTask)
 		fmt.Println(requestTask.ApiToken)
-		if err := ctx.BindJSON(&requestTask); err != nil {
-			fmt.Errorf("Пустой JSON")
-		}
-		session, _ := sessionStorage.Create(4000)
-		fmt.Println("handler func:", session.AuthToken)
-		ctx.JSON(http.StatusOK, gin.H{
-			"api_token": requestTask.ApiToken,
-		})
+		// if err := ctx.BindJSON(&requestTask); err != nil {
+		// 	fmt.Printf("пустой JSON %v", err)
+		// }
+		// session, _ := sessionStorage.Create(4000)
+		// fmt.Println("handler func:", session.AuthToken)
+		// ctx.JSON(http.StatusOK, gin.H{
+		// 	"api_token": requestTask.ApiToken,
+		// })
 	}
 }
 func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
