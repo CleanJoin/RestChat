@@ -17,18 +17,18 @@ type ISessionStorage interface {
 }
 
 func NewSessionStorageMemory(tokenGenerator ITokenGenerator) *SessionStorageMemory {
-	ssm := new(SessionStorageMemory)
-	ssm.tokenGenerator = tokenGenerator
+	sessionStorage := new(SessionStorageMemory)
+	sessionStorage.tokenGenerator = tokenGenerator
 
-	return ssm
+	return sessionStorage
 }
 
-func (ssm *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
-	if ssm == nil || len(ssm.Sessions) == 0 {
+func (sessionStorage *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
+	if sessionStorage == nil || len(sessionStorage.Sessions) == 0 {
 		return nil, fmt.Errorf("все пользователи не в сети")
 	}
 	var onlineUsers []uint
-	for _, r := range ssm.Sessions {
+	for _, r := range sessionStorage.Sessions {
 		onlineUsers = append(onlineUsers, r.UserId)
 	}
 	return onlineUsers, nil
@@ -37,36 +37,36 @@ func deleteSessionByIndex(sm []SessionModel, index int) []SessionModel {
 	return append(sm[:index], sm[index+1:]...)
 }
 
-func getLastSessionId(ssm *SessionStorageMemory) uint {
-	if ssm == nil || len(ssm.Sessions) == 0 {
+func getLastSessionId(sessionStorage *SessionStorageMemory) uint {
+	if sessionStorage == nil || len(sessionStorage.Sessions) == 0 {
 		return 0
 	}
-	sort.Slice(ssm.Sessions, func(i, j int) (less bool) {
-		return ssm.Sessions[i].ID > ssm.Sessions[j].ID
+	sort.Slice(sessionStorage.Sessions, func(i, j int) (less bool) {
+		return sessionStorage.Sessions[i].ID > sessionStorage.Sessions[j].ID
 	})
-	return ssm.Sessions[0].ID
+	return sessionStorage.Sessions[0].ID
 }
 
-func (ssm *SessionStorageMemory) Delete(apiToken string) error {
+func (sessionStorage *SessionStorageMemory) Delete(apiToken string) error {
 	index := 0
-	for i, r := range ssm.Sessions {
+	for i, r := range sessionStorage.Sessions {
 		if r.AuthToken == apiToken {
 			index = i
 			break
 		}
 	}
-	ssm.Sessions = deleteSessionByIndex(ssm.Sessions, index)
+	sessionStorage.Sessions = deleteSessionByIndex(sessionStorage.Sessions, index)
 	return nil
 }
 
-func (ssm *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
-	sessionId := getLastSessionId(ssm)
+func (sessionStorage *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
+	sessionId := getLastSessionId(sessionStorage)
 	sessionId++
-	lenCurrentMessages := len(ssm.Sessions)
-	authToken := ssm.tokenGenerator.Create()
-	ssm.Sessions = append(ssm.Sessions, SessionModel{ID: sessionId, UserId: userId, AuthToken: authToken})
-	if lenCurrentMessages >= len(ssm.Sessions) {
+	lenCurrentMessages := len(sessionStorage.Sessions)
+	authToken := sessionStorage.tokenGenerator.Create()
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: sessionId, UserId: userId, AuthToken: authToken})
+	if lenCurrentMessages >= len(sessionStorage.Sessions) {
 		return SessionModel{ID: 0, UserId: 0, AuthToken: ""}, fmt.Errorf("не удалось добавить сообщение")
 	}
-	return ssm.Sessions[len(ssm.Sessions)-1], nil
+	return sessionStorage.Sessions[len(sessionStorage.Sessions)-1], nil
 }

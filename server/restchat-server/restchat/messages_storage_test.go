@@ -7,32 +7,32 @@ import (
 )
 
 func TestGetLastMessageIdEmpty(t *testing.T) {
-	msm := new(MessageStorageMemory)
-	if getLastMessageId(msm) != 0 {
-		t.Errorf("Есть идентификатор сообщения: %v\n", getLastMessageId(msm))
+	messageStorage := new(MessageStorageMemory)
+	if getLastMessageId(messageStorage) != 0 {
+		t.Errorf("Есть идентификатор сообщения: %v\n", getLastMessageId(messageStorage))
 	}
 }
 
 func TestGetLastMessageId(t *testing.T) {
-	msm := new(MessageStorageMemory)
-	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 1, Text: "Первое сообщение чата", Time: time.Now()})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 2, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
-	if getLastMessageId(msm) != 4 {
-		t.Errorf("Не верное выводиться идентификатор последнего сообщения%v\n", getLastMessageId(msm))
+	messageStorage := new(MessageStorageMemory)
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 4, UserId: 1, Text: "Первое сообщение чата", Time: time.Now()})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 2, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
+	if getLastMessageId(messageStorage) != 4 {
+		t.Errorf("Не верное выводиться идентификатор последнего сообщения%v\n", getLastMessageId(messageStorage))
 	}
 }
 
 func TestCreateMessage(t *testing.T) {
-	msm := new(MessageStorageMemory)
+	messageStorage := new(MessageStorageMemory)
 	newTime := time.Now()
 
-	msm.Messages = append(msm.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 	user_id := uint(1)
 	text := "Первое сообщение"
 	outmessage := new(MessageStorageMemory)
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 1, Text: "Первое сообщение", Time: newTime})
-	request, err := msm.Create(user_id, text)
+	request, err := messageStorage.Create(user_id, text)
 
 	if request.ID != outmessage.Messages[0].ID {
 		t.Errorf("Ошибка не верный вывод из функции %v,%v", request, outmessage.Messages[0])
@@ -43,9 +43,9 @@ func TestCreateMessage(t *testing.T) {
 }
 
 func TestGetLastEmpty(t *testing.T) {
-	msm := new(MessageStorageMemory)
+	messageStorage := new(MessageStorageMemory)
 	lastSequence := uint(3)
-	request, err := msm.GetLast(lastSequence)
+	request, err := messageStorage.GetLast(lastSequence)
 	if request != nil || len(request) != 0 {
 		t.Errorf("Массив сообщений не пустой")
 	}
@@ -55,13 +55,13 @@ func TestGetLastEmpty(t *testing.T) {
 }
 
 func TestGetLast(t *testing.T) {
-	msm := new(MessageStorageMemory)
+	messageStorage := new(MessageStorageMemory)
 	newTime := time.Now()
 
-	msm.Messages = append(msm.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
-	msm.Messages = append(msm.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 7, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 
 	lastSequence := uint(3)
 	outmessage := new(MessageStorageMemory)
@@ -69,7 +69,7 @@ func TestGetLast(t *testing.T) {
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 5, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 
-	request, err := msm.GetLast(lastSequence)
+	request, err := messageStorage.GetLast(lastSequence)
 	if reflect.DeepEqual(request, outmessage.Messages) != true {
 		t.Errorf("Не корректный список сообщений \n%v\n%v", request, outmessage.Messages)
 	}

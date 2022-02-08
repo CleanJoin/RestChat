@@ -29,52 +29,52 @@ func TestIUserStorage(t *testing.T) {
 
 }
 func TestCreateUser(t *testing.T) {
-	usm := NewUserStorageMemory(new(PasswordHasherSha1))
-	_, err := usm.Create("Андрей", "Андрей")
+	userStorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	_, err := userStorage.Create("Андрей", "Андрей")
 	if err != nil {
 		t.Errorf("Не создался пользователь %v", err)
 	}
 }
 func TestGetLastUserId(t *testing.T) {
-	usm := NewUserStorageMemory(new(PasswordHasherSha1))
-	_, err := usm.Create("Андрей", "Андрей")
+	userStorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	_, err := userStorage.Create("Андрей", "Андрей")
 	if err != nil {
 		t.Errorf("Не создался пользователь %v", err)
 	}
-	if getLastUserId(usm) != usm.Users[0].ID {
+	if getLastUserId(userStorage) != userStorage.Users[0].ID {
 		t.Errorf("Не получили идентификатор последнего пользователя")
 	}
 }
 
 func TestGetByName(t *testing.T) {
-	usm := NewUserStorageMemory(new(PasswordHasherSha1))
-	user, err := usm.Create("Андрей", "Андрей")
+	userStorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	user, err := userStorage.Create("Андрей", "Андрей")
 	if err != nil {
 		t.Errorf("Не создался пользователь %v", err)
 	}
-	_, err = usm.GetByName(user.Username)
+	_, err = userStorage.GetByName(user.Username)
 	if err != nil {
 		t.Errorf("не нашелся пользователь по указанному Username %v", err)
 	}
 }
 func TestGetById(t *testing.T) {
-	usm := NewUserStorageMemory(new(PasswordHasherSha1))
-	user, err := usm.Create("Андрей", "Андрей")
+	userStorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	user, err := userStorage.Create("Андрей", "Андрей")
 	if err != nil {
 		t.Errorf("Не создался пользователь %v", err)
 	}
-	_, err = usm.GetById(user.ID)
+	_, err = userStorage.GetById(user.ID)
 	if err != nil {
 		t.Errorf("пользователь с указанным id не нашелся %v", err)
 	}
 }
 func TestGetByIds(t *testing.T) {
-	usm := NewUserStorageMemory(new(PasswordHasherSha1))
+	userStorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	for i := 1; i < 10; i++ {
-		usm.Create("Андрей"+strconv.Itoa(i), "Андрей"+strconv.Itoa(i))
+		userStorage.Create("Андрей"+strconv.Itoa(i), "Андрей"+strconv.Itoa(i))
 	}
 	ids := []uint{2, 3, 6, 7}
-	request, err := usm.GetByIds(ids)
+	request, err := userStorage.GetByIds(ids)
 	if err != nil {
 		t.Errorf("не нашелся пользователь по указанным идентификаторам %v", err)
 	}
