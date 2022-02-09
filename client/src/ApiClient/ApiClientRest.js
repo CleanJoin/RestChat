@@ -25,13 +25,13 @@ class ApiClientRest {
     }
 
     login(username, password) {
-        // POST /login
+        // POST /api/login
         // {username: "string", password: "string"}
         let error = null ;
 
         const [status, response] = this._request(
             'POST',
-            '/login',
+            '/api/login',
             {
                 username: username,
                 password: password
@@ -46,14 +46,14 @@ class ApiClientRest {
     }
 
     register(username, password) {
-        // POST /user
+        // POST /api/user
         // {username: "string", password: "string"}
         let userName = null;
         let error = null;
 
         const [status, response] = this._request(
             'POST',
-            '/user',
+            '/api/user',
             {
                 username: username,
                 password: password
@@ -67,7 +67,7 @@ class ApiClientRest {
     }
 
     logout() {
-        // POST /logout
+        // POST /api/logout
         // {api_token: "string"}
 
         if (!this._isAuthorized()) {
@@ -76,7 +76,7 @@ class ApiClientRest {
 
         const [status, response] = this._request(
             'POST',
-            '/logout',
+            '/api/logout',
             {
                 api_token: this.apiToken
             }
@@ -90,7 +90,7 @@ class ApiClientRest {
     }
 
     getMembers() {
-        // GET /members
+        // GET /api/members
         // {api_token: "string"}
         let members = [];
         let error = undefined;
@@ -101,7 +101,7 @@ class ApiClientRest {
 
         const [status, response] = this._request(
             'GET',
-            '/members',
+            '/api/members',
             {
                 api_token: this.apiToken
             }
@@ -114,7 +114,7 @@ class ApiClientRest {
     }
 
     getMessages() {
-        // GET /messages
+        // GET /api/messages
         // {api_token: "string"}
         let messages = [];
         let error = undefined;
@@ -125,7 +125,7 @@ class ApiClientRest {
 
         const [status, response] = this._request(
             'GET',
-            '/messages',
+            '/api/messages',
             {
                 api_token: this.apiToken
             }
@@ -138,7 +138,7 @@ class ApiClientRest {
     }
 
     sendMessage(text) {
-        // POST /message
+        // POST /api/message
         // {api_token: "string", text: "string"}
         let message = undefined;
         let error = undefined;
@@ -149,7 +149,7 @@ class ApiClientRest {
 
         const [status, response] = this._request(
             'POST',
-            '/message',
+            '/api/message',
             {
                 api_token: this.apiToken,
                 text: text
