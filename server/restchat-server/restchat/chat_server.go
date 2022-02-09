@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -56,8 +57,19 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 	chat.router.GET("/api/members", membersHandler(chat.sessionStorage))
 	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.maxLastMessages))
 	chat.router.POST("/api/message", messageHandler(chat.messageStorage))
+	chat.router.GET("/api/health", heathHandler())
+
 }
 
+func heathHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"time":    time.Now().Format(time.RFC3339),
+		})
+
+	}
+}
 func (chat *ChatServerGin) Run() error {
 	if chat.router == nil {
 		return fmt.Errorf("gin не сконфигурирован %v", chat.router)
@@ -68,10 +80,11 @@ func (chat *ChatServerGin) Run() error {
 func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		requestUser := new(RequestUser)
-		err := ctx.BindJSON(&requestUser)
 
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Не содержит поля в запросе"})
+		statusCode, ctx2, checkBadRequest := validateBadRequest(ctx, requestUser)
+
+		if !checkBadRequest {
+			ctx.JSON(statusCode, ctx2)
 			return
 		}
 
@@ -116,11 +129,38 @@ func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 
 func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		requestUser := new(RequestUser)
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"api_token": "session.AuthToken",
-		})
+		statusCode, ctx2, checkBadRequest := validateBadRequest(ctx, requestUser)
+
+		if !checkBadRequest {
+			ctx.JSON(statusCode, ctx2)
+			return
+		}
+
+		if !validatenUserName(requestUser.Username) {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "Invalid Username"})
+			return
+		}
+
+		if !validatePassword(requestUser.Password) {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "Invalid Password"})
+			return
+		}
+		userMode, err := userStorage.GetByName(requestUser.Username)
+		if err == nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+		userMode, err = userStorage.Create(requestUser.Username, requestUser.Password)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, gin.H{"username": userMode.Username})
 	}
+
 }
 
 func membersHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
@@ -168,4 +208,14 @@ func validatePassword(password string) bool {
 func checkUserPassword(userName string, password string, userStorage IUserStorage) bool {
 	userModel, err := userStorage.GetByName(userName)
 	return err == nil && userModel.PasswordHash == new(PasswordHasherSha1).CalculateHash(password)
+}
+
+func validateBadRequest(ctx *gin.Context, requestData interface{}) (int, interface{}, bool) {
+
+	err := ctx.BindJSON(&requestData)
+	if err != nil {
+
+		return http.StatusBadRequest, gin.H{"error": "Не содержит поля в запросе"}, false
+	}
+	return http.StatusOK, gin.H{"error": ""}, true
 }
