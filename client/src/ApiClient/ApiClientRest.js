@@ -8,7 +8,7 @@ class ApiClientRest {
     // sendMessage(text) -> message, error
 
     constructor() {
-        this.api_token = null;
+        this.apiToken = null;
     }
 
     _request(method, url, payload) {
