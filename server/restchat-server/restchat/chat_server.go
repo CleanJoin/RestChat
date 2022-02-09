@@ -3,6 +3,7 @@ package restchat
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,11 +18,16 @@ type ChatServerGin struct {
 	maxLastMessages uint
 }
 
-type RequestTask struct {
-	ApiToken string `json:"api_token,omitempty"`
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
-	Text     string `json:"text,omitempty"`
+type RequestUser struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+type RequestApiToken struct {
+	ApiToken string `json:"api_token"`
+}
+type RequestMessage struct {
+	ApiToken string `json:"api_token"`
+	Text     string `json:"text"`
 }
 
 type IChatServer interface {
@@ -45,7 +51,7 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 	chat.userStorage = userStorage
 	// Конфигурируем все эндпоинты
 	chat.router.POST("/api/user", userHandler(chat.userStorage))
-	chat.router.GET("/api/login", loginHandler(chat.sessionStorage))
+	chat.router.POST("/api/login", loginHandler(chat.sessionStorage, chat.userStorage))
 	chat.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
 	chat.router.GET("/api/members", membersHandler(chat.sessionStorage))
 	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.maxLastMessages))
@@ -57,21 +63,47 @@ func (chat *ChatServerGin) Run() error {
 		return fmt.Errorf("gin не сконфигурирован %v", chat.router)
 	}
 	return chat.router.Run()
-
 }
 
-func loginHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
+func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		requestTask := new(RequestTask)
-		ctx.BindJSON(&requestTask)
-		fmt.Println(requestTask.ApiToken)
-		session, _ := sessionStorage.Create(4000)
-		fmt.Println("handler func:", session.AuthToken)
-		ctx.JSON(http.StatusOK, gin.H{
-			"api_token": requestTask.ApiToken,
-		})
+		requestUser := new(RequestUser)
+		err := ctx.BindJSON(&requestUser)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Не содержит поля в запросе"})
+			return
+		}
+
+		if !validatenUserName(requestUser.Username) {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Username"})
+			return
+		}
+
+		if !validatePassword(requestUser.Password) {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Password"})
+			return
+		}
+		userMode, err := userStorage.GetByName(requestUser.Username)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+		if !checkUserPassword(requestUser.Username, requestUser.Password, userStorage) {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Не правильно введен пароль"})
+			return
+		}
+
+		sessionModel, err := sessionStorage.Create(userMode.ID)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"auth_token": sessionModel.AuthToken, "member": gin.H{"id": sessionModel.ID, "name": userMode.Username}})
 	}
 }
+
 func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session, _ := sessionStorage.Create(4000)
@@ -81,6 +113,7 @@ func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 		})
 	}
 }
+
 func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -89,6 +122,7 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 		})
 	}
 }
+
 func membersHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		members, _ := sessionStorage.GetOnlineUserIds()
@@ -99,6 +133,7 @@ func membersHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 		ctx.IndentedJSON(http.StatusOK, members)
 	}
 }
+
 func messageHandler(messageStorage IMessageStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -116,4 +151,21 @@ func messagesHandler(messageStorage IMessageStorage, maxLastMessages uint) gin.H
 		}
 		ctx.IndentedJSON(http.StatusOK, messages)
 	}
+}
+
+func validatenUserName(userName string) bool {
+	var validPath = regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString
+	return validPath(userName) && len(userName) < 16
+}
+
+func validateMessage(text string) bool {
+	return len(text) < 1024
+}
+func validatePassword(password string) bool {
+	return len(password) < 32
+}
+
+func checkUserPassword(userName string, password string, userStorage IUserStorage) bool {
+	userModel, err := userStorage.GetByName(userName)
+	return err == nil && userModel.PasswordHash == new(PasswordHasherSha1).CalculateHash(password)
 }
