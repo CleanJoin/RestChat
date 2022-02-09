@@ -32,6 +32,25 @@ func TestRun(t *testing.T) {
 	}
 }
 
+func TestUserHandler(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	values := map[string]string{"username": "Andrey", "password": "fghfghfghfgh"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusCreated, w.Code)
+	fmt.Println(w.Body.String())
+	assert.Equal(t, fmt.Sprintf(`{"username":"%s"}`, usersstorage.Users[0].Username), w.Body.String())
+}
+
 func TestLoginHandler(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
