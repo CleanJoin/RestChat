@@ -1,12 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+
 import App from './App';
+import ApiClientRest from './ApiClient/ApiClientRest'
 import reportWebVitals from './reportWebVitals';
+
+import './index.css';
+
+const apiClient = new ApiClientRest();
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App apiClient={apiClient} />
   </React.StrictMode>,
   document.getElementById('root'),
 );
