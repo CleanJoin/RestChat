@@ -35,7 +35,7 @@ function Chat({
     logoutHandler();
   }
 
-  useEffect(() => {
+  const startAutoFetch = useCallback(() => {
     const fetchData = () => {
       updateMembers();
       updateMessages();
@@ -47,7 +47,11 @@ function Chat({
       setAutoUpdateIntervalId(intervalId);
       console.log("Started auto data fetch loop");
     }
-  }, [updateIntervalSec, autoUpdateIntervalId, updateMembers, updateMessages]);
+  }, [autoUpdateIntervalId, updateIntervalSec, updateMembers, updateMessages]);
+
+  useEffect(() => {
+    startAutoFetch();
+  }, [startAutoFetch]);
 
 
   return (
