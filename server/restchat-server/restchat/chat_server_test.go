@@ -50,6 +50,7 @@ func TestLogoutHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, `{}`, w.Body.String())
 }
+
 func TestLogoutHandlerNotDelete(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))

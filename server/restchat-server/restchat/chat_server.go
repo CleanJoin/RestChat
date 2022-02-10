@@ -162,7 +162,7 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 			return
 		}
 		userMode, err = userStorage.Create(requestUser.Username, requestUser.Password)
-		if err == nil {
+		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
