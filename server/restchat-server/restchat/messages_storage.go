@@ -51,6 +51,13 @@ func (messageStorage *MessageStorageMemory) GetLast(n uint) ([]MessageModel, err
 	sort.Slice(messageStorage.Messages, func(i, j int) (less bool) {
 		return messageStorage.Messages[i].ID > messageStorage.Messages[j].ID
 	})
-	copylastmessages := messageStorage.Messages[0:n]
+	numMessages := minUint(len(messageStorage.Messages), n)
+	copylastmessages := messageStorage.Messages[0:uint(numMessages)]
 	return copylastmessages, nil
+}
+func minUint(len int, maxMessages uint) (min uint) {
+	if uint(len) > maxMessages {
+		return maxMessages
+	}
+	return uint(len)
 }
