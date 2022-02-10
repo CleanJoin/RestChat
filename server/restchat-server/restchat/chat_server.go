@@ -30,6 +30,20 @@ type RequestMessage struct {
 	ApiToken string `json:"api_token"`
 	Text     string `json:"text"`
 }
+type RequestMembers struct {
+	Members []struct {
+		Id   uint   `json:"id"`
+		Name string `json:"name"`
+	} `json:"members"`
+}
+type RequestMessages struct {
+	Messages []struct {
+		Id         uint      `json:"id"`
+		MemberName string    `json:"member_name"`
+		Text       string    `json:"text"`
+		Time       time.Time `json:"time"`
+	} `json:"messages"`
+}
 
 type IChatServer interface {
 	Use(sessionStorage ISessionStorage, userStorage IUserStorage, messageStorage IMessageStorage)
@@ -54,8 +68,8 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 	chat.router.POST("/api/user", userHandler(chat.userStorage))
 	chat.router.POST("/api/login", loginHandler(chat.sessionStorage, chat.userStorage))
 	chat.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
-	chat.router.GET("/api/members", membersHandler(chat.sessionStorage))
-	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.maxLastMessages))
+	chat.router.GET("/api/members", membersHandler(chat.sessionStorage, chat.userStorage))
+	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.userStorage, chat.maxLastMessages))
 	chat.router.POST("/api/message", messageHandler(chat.messageStorage))
 	chat.router.GET("/api/health", heathHandler())
 
@@ -63,7 +77,7 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 
 func heathHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
+		ctx.IndentedJSON(http.StatusOK, gin.H{
 			"success": true,
 			"time":    time.Now().Format(time.RFC3339),
 		})
@@ -84,36 +98,36 @@ func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.
 		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
 
 		if !checkBadRequest {
-			ctx.JSON(statusCode, ctx2)
+			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
 
 		if !validatenUserName(requestUser.Username) {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Username"})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Username"})
 			return
 		}
 
 		if !validatePassword(requestUser.Password) {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Password"})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Password"})
 			return
 		}
 		userMode, err := userStorage.GetByName(requestUser.Username)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 		if !checkUserPassword(requestUser.Username, requestUser.Password, userStorage) {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Не правильно введен пароль"})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Не правильно введен пароль"})
 			return
 		}
 
 		sessionModel, err := sessionStorage.Create(userMode.ID)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"auth_token": sessionModel.AuthToken, "member": gin.H{"id": sessionModel.ID, "name": userMode.Username}})
+		ctx.IndentedJSON(http.StatusOK, gin.H{"auth_token": sessionModel.AuthToken, "member": gin.H{"id": sessionModel.ID, "name": userMode.Username}})
 	}
 }
 
@@ -124,15 +138,15 @@ func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestApiToken)
 
 		if !checkBadRequest {
-			ctx.JSON(statusCode, ctx2)
+			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
 		err := sessionStorage.Delete(requestApiToken.ApiToken)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusOK, gin.H{})
+		ctx.IndentedJSON(http.StatusOK, gin.H{})
 	}
 }
 
@@ -143,62 +157,119 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
 
 		if !checkBadRequest {
-			ctx.JSON(statusCode, ctx2)
+			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
 
 		if !validatenUserName(requestUser.Username) {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "Invalid Username"})
+			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Invalid Username"})
 			return
 		}
 
 		if !validatePassword(requestUser.Password) {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "Invalid Password"})
+			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Invalid Password"})
 			return
 		}
 		userMode, err := userStorage.GetByName(requestUser.Username)
 		if err == nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь существует в базе"})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Пользователь существует в базе"})
 			return
 		}
 		userMode, err = userStorage.Create(requestUser.Username, requestUser.Password)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusCreated, gin.H{"username": userMode.Username})
+		ctx.IndentedJSON(http.StatusCreated, gin.H{"username": userMode.Username})
 	}
 
 }
 
-func membersHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
+func membersHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		members, _ := sessionStorage.GetOnlineUserIds()
-		if len(members) == 0 {
-			ctx.IndentedJSON(http.StatusNotFound, members)
+
+		requestApiToken := new(RequestApiToken)
+
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestApiToken)
+		if !checkBadRequest {
+			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
-		ctx.IndentedJSON(http.StatusOK, members)
+
+		userId, err := sessionStorage.GetOnlineUserIds()
+		if err != nil {
+			type Newmembers struct {
+				Members []string `json:"members"`
+			}
+			empty := make([]string, 0)
+			emptyMembers := Newmembers{Members: empty}
+			ctx.IndentedJSON(http.StatusOK, emptyMembers)
+			return
+		}
+
+		users, err := userStorage.GetByIds(userId)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusOK, gin.H{"members": userId})
+			return
+		}
+		newMembers := new(RequestMembers)
+		for _, u := range users {
+
+			newMembers.Members = append(newMembers.Members, struct {
+				Id   uint   "json:\"id\""
+				Name string "json:\"name\""
+			}{u.ID, u.Username})
+		}
+		ctx.IndentedJSON(http.StatusOK, newMembers)
+	}
+}
+
+func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, maxLastMessages uint) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		requestApiToken := new(RequestMessage)
+
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestApiToken)
+		if !checkBadRequest {
+			ctx.IndentedJSON(statusCode, ctx2)
+			return
+		}
+		messageModel, err := messageStorage.GetLast(maxLastMessages)
+		if err != nil {
+			type NewMessages struct {
+				Messages []string `json:"messages"`
+			}
+			empty := make([]string, 0)
+			emptyMembers := NewMessages{Messages: empty}
+			ctx.IndentedJSON(http.StatusOK, emptyMembers)
+			return
+		}
+
+		newMessages := new(RequestMessages)
+		for _, u := range messageModel {
+			userModel, err := userStorage.GetById(u.UserId)
+			if err != nil {
+				fmt.Println(err)
+			}
+			newMessages.Messages = append(newMessages.Messages, struct {
+				Id         uint      "json:\"id\""
+				MemberName string    "json:\"member_name\""
+				Text       string    "json:\"text\""
+				Time       time.Time "json:\"time\""
+			}{u.ID, userModel.Username, u.Text, u.Time})
+
+		}
+		ctx.IndentedJSON(http.StatusOK, newMessages.Messages)
 	}
 }
 
 func messageHandler(messageStorage IMessageStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		ctx.JSON(http.StatusOK, gin.H{
+		ctx.IndentedJSON(http.StatusOK, gin.H{
 			"api_token": "MessageStorageMemory",
 		})
-	}
-}
-func messagesHandler(messageStorage IMessageStorage, maxLastMessages uint) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		messages, _ := messageStorage.GetLast(maxLastMessages)
-		if len(messages) == 0 {
-			ctx.IndentedJSON(http.StatusNotFound, messages)
-			return
-		}
-		ctx.IndentedJSON(http.StatusOK, messages)
 	}
 }
 
