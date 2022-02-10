@@ -25,7 +25,7 @@ func NewSessionStorageMemory(tokenGenerator ITokenGenerator) *SessionStorageMemo
 
 func (sessionStorage *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
 	if sessionStorage == nil || len(sessionStorage.Sessions) == 0 {
-		return nil, fmt.Errorf("все пользователи не в сети")
+		return nil, fmt.Errorf("пользователи не в сети")
 	}
 	var onlineUsers []uint
 	for _, r := range sessionStorage.Sessions {
