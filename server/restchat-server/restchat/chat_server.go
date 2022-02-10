@@ -70,7 +70,7 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 	chat.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
 	chat.router.GET("/api/members", membersHandler(chat.sessionStorage, chat.userStorage))
 	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.userStorage, chat.maxLastMessages))
-	chat.router.POST("/api/message", messageHandler(chat.messageStorage))
+	chat.router.POST("/api/message", messageHandler(chat.messageStorage, chat.userStorage, chat.sessionStorage))
 	chat.router.GET("/api/health", heathHandler())
 
 }
@@ -84,6 +84,7 @@ func heathHandler() gin.HandlerFunc {
 
 	}
 }
+
 func (chat *ChatServerGin) Run() error {
 	if chat.router == nil {
 		return fmt.Errorf("gin не сконфигурирован %v", chat.router)
@@ -248,10 +249,7 @@ func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, m
 
 		newMessages := new(RequestMessages)
 		for _, u := range messageModel {
-			userModel, err := userStorage.GetById(u.UserId)
-			if err != nil {
-				fmt.Println(err)
-			}
+			userModel, _ := userStorage.GetById(u.UserId)
 			newMessages.Messages = append(newMessages.Messages, struct {
 				Id         uint      "json:\"id\""
 				MemberName string    "json:\"member_name\""
@@ -264,12 +262,48 @@ func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, m
 	}
 }
 
-func messageHandler(messageStorage IMessageStorage) gin.HandlerFunc {
+func messageHandler(messageStorage IMessageStorage, userStorage IUserStorage, sessionStorage ISessionStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		requestMessage := new(RequestMessage)
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestMessage)
+		if !checkBadRequest {
+			ctx.IndentedJSON(statusCode, ctx2)
+			return
+		}
 
-		ctx.IndentedJSON(http.StatusOK, gin.H{
-			"api_token": "MessageStorageMemory",
-		})
+		if !validateMessage(requestMessage.Text) {
+			ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "сообщение больше 1024 символов"})
+			return
+		}
+		if requestMessage.Text == "" {
+			ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "сообщение пустое"})
+			return
+		}
+		userId, err := sessionStorage.GetUserId(requestMessage.ApiToken)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		messageModel, err := messageStorage.Create(userId, requestMessage.Text)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
+
+		userModel, err := userStorage.GetById(messageModel.UserId)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+		newMessages := new(RequestMessages)
+		newMessages.Messages = append(newMessages.Messages, struct {
+			Id         uint      "json:\"id\""
+			MemberName string    "json:\"member_name\""
+			Text       string    "json:\"text\""
+			Time       time.Time "json:\"time\""
+		}{messageModel.ID, userModel.Username, messageModel.Text, messageModel.Time})
+		ctx.IndentedJSON(http.StatusOK, newMessages.Messages)
 	}
 }
 
