@@ -3,10 +3,8 @@ package restchat
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -32,6 +30,95 @@ func TestRun(t *testing.T) {
 		t.Errorf("router сконфигурирован  %v", chatServer.router)
 	}
 }
+
+func TestMessageHandler(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	sessionStorage.Create(1)
+
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": "string"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestMessageHandlerEmptyText(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	sessionStorage.Create(1)
+
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": ""}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error": "сообщение пустое"}
+	}
+}
+
+func TestMessageHandlerLongText(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	sessionStorage.Create(1)
+	text := `Jdsfsdfdsfsdfdsfdsfsdfsкегщшуегущшегукшцукгнуцгшкуцгкшщуцгкшуцгшщкгуцщкшгуцкгуцшщкгуцшкгуцшщкгцущшкгуцшщгк
+	цушщкввгвыкшгкшгыукгшщуцшгщцушгщкуцшщгкцугшщкуцшгщкуцшгщкшгуцкшгщуцщкгшуцгшщкугцшщкшгуцщкшщгуцщкгшуцшгщкуцгшщку
+	гцшщкшгщуцкгшщуцщгшкуцшгщкугцшщкшгущцшкгщJdsfsdfdsfsdfdsfdsfsdfsкегщшуегущшегукшцукгнуцгшкуцгкшщуцгкшуцгшщкгуцщкшгуцкгуцшщкгуцшкгуцшщкгцущшкгуцшщгк
+	цушщкввгвыкшгкшгыукгшщуцшгщцушгщкуцшщгкцугшщкуцшгщкуцшгщкшгуцкшгщуцщкгшуцгшщкугцшщкшгуцщкшщгуцщкгшуцшгщкуцгшщку
+	гцшщкшгщуцкгшщуцщгшкуцшгщкугцшщкшгущцшкгщJdsfsdfdsfsdfdsfdsfsdfsкегщшуегущшегукшцукгнуцгшкуцгкшщуцгкшуцгшщкгуцщкшгуцкгуцшщкгуцшкгуцшщкгцущшкгуцшщгк
+	цушщкввгвыкшгкшгыукгшщуцшгщцушгщкуцшщгкцугшщкуцшгщкуцшгщкшгуцкшгщуцщкгшуцгшщкугцшщкшгуцщкшщгуцщкгшуцшгщкуцгшщку
+	гцшщкшгщуцкгшщуцщгшкуцшгщкугцшщкшгущцшкгщJdsfsdfdsfsdfdsfdsfsdfsкегщшуегущшегукшцукгнуцгшкуцгкшщуцгкшуцгшщкгуцщкшгуцкгуцшщкгуцшкгуцшщкгцущшкгуцшщгк
+	цушщкввгвыкшгкшгыукгшщуцшгщцушгщкуцшщгкцугшщкуцшгщкуцшгщкшгуцкшгщуцщкгшуцгшщкугцшщкшгуцщкшщгуцщкгшуцшгщкуцгшщку
+	гцшщкшгщуцкгшщуцщгшкуцшгщкугцшщкшгущцшкгщ`
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": text}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error": "сообщение больше 1024 символов"}
+	}
+}
+
+func TestMessageHandlerBadRequest(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	sessionStorage.Create(1)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/members", strings.NewReader(`{"api_token":`+sessionStorage.Sessions[0].AuthToken+`,"text": }`))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error": "сообщение пустое"}
+	}
+}
+
 func TestMessagesHandler(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -43,9 +130,7 @@ func TestMessagesHandler(t *testing.T) {
 	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
 	sessionStorage.Create(1)
 	sessionStorage.Create(2)
-	for i := 0; i < 2; i++ {
-		messageStorage.Create(usersstorage.Users[0].ID, "Первое сообщение"+strconv.Itoa(i))
-	}
+
 	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
@@ -109,7 +194,6 @@ func TestMembersHandler(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/api/members", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
-	fmt.Println(w.Body.String())
 	assert.Equal(t, http.StatusOK, w.Code)
 	outMembers := "{\n    \"members\": [\n        {\n            \"id\": 1,\n            \"name\": \"Andrey\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Andrey2\"\n        }\n    ]\n}"
 	assert.Equal(t, outMembers, w.Body.String())
