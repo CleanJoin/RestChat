@@ -1,35 +1,69 @@
+async function restRequest(method, url, payload) {
+    const response = await fetch(
+        url,
+        {
+            method: method,
+            headers: {
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    const message = response.json();
+
+    if (!response.ok) {
+        if (message.hasOwnProperty('error')) {
+            throw new Error(message.error);
+        } else {
+            throw new Error(`Server error: ${response.status}: ${response.statusText}`)
+        }
+    }
+
+    return response.json();
+}
+
+function validateResponseDataFields(jsonResponse, requiredFields) {
+    if (!Array.isArray(requiredFields)) {
+        requiredFields = [requiredFields];
+    }
+
+    for(const field of requiredFields) {
+        if (!jsonResponse.hasOwnProperty(field)) {
+            throw new Error(`Bad server response. Response does not have ${field} field.`);
+        }
+    }
+}
+
 class ApiClientRest {
     // ApiClient interface
-    // login(username, password) -> userName, error
-    // register(username, password) -> userName, error
-    // logout() -> true/false, error
-    // getMembers() -> [members], error
-    // getMessages() -> [messages], error
-    // sendMessage(text) -> message, error
+    // login(username, password) -> userName
+    // register(username, password) -> userName
+    // logout() -> undefined
+    // getMembers() -> [members]
+    // getMessages() -> [messages]
+    // sendMessage(text) -> message
 
     constructor() {
         this.apiToken = null;
     }
 
-    _request(method, url, payload) {
-        const xmlHttp = new XMLHttpRequest();
-        xmlHttp.open(method, url, false);
-        xmlHttp.send(payload);
-        const status = xmlHttp.status;
-        const response = xmlHttp.responseText;
-        return [status, response];
-    }
-
-    _isAuthorized() {
+    isAuthorized() {
         return this.apiToken == null;
     }
 
-    login(username, password) {
+    #requireAuthorization() {
+        if (!this.isAuthorized()) {
+            throw new Error("ApiClient is not authorized.");
+        }
+    }
+
+    async login(username, password) {
         // POST /api/login
         // {username: "string", password: "string"}
-        let error = null ;
 
-        const [status, response] = this._request(
+        const data = await restRequest(
             'POST',
             '/api/login',
             {
@@ -38,20 +72,17 @@ class ApiClientRest {
             }
         );
 
-        // TODO: DEBUG
-        console.log("ApiClient.login()", status, response);
+        validateResponseDataFields(data, ['api_token', 'member']);
 
-        this.apiToken = response.api_token;
-        return [username, error]
+        this.apiToken = data.api_token;
+        return data.member.name;
     }
 
-    register(username, password) {
+    async register(username, password) {
         // POST /api/user
         // {username: "string", password: "string"}
-        let userName = null;
-        let error = null;
 
-        const [status, response] = this._request(
+        const data = restRequest(
             'POST',
             '/api/user',
             {
@@ -60,21 +91,18 @@ class ApiClientRest {
             }
         );
 
-        // TODO: DEBUG
-        console.log("ApiClient.register()", status, response);
+        validateResponseDataFields(data, ['username']);
 
-        return [userName, error]
+        return data.username;
     }
 
-    logout() {
+    async logout() {
         // POST /api/logout
         // {api_token: "string"}
 
-        if (!this._isAuthorized()) {
-            return "ApiClient was not authorized";
-        }
+        this.#requireAuthorization();
 
-        const [status, response] = this._request(
+        restRequest(
             'POST',
             '/api/logout',
             {
@@ -82,24 +110,16 @@ class ApiClientRest {
             }
         );
 
-        // TODO: DEBUG
-        console.log("ApiClient.register()", status, response);
-
         this.apiToken = undefined;
-        return null
     }
 
-    getMembers() {
+    async getMembers() {
         // GET /api/members
         // {api_token: "string"}
-        let members = [];
-        let error = undefined;
 
-        if (!this._isAuthorized()) {
-            return [null, "ApiClient not authorized"]
-        }
+        this.#requireAuthorization();
 
-        const [status, response] = this._request(
+        const data = restRequest(
             'GET',
             '/api/members',
             {
@@ -107,23 +127,18 @@ class ApiClientRest {
             }
         );
 
-        // TODO: DEBUG
-        console.log("ApiClient.getMembers()", status, response);
+        validateResponseDataFields(data, ['members']);
 
-        return [members, error];
+        return data.members;
     }
 
-    getMessages() {
+    async getMessages() {
         // GET /api/messages
         // {api_token: "string"}
-        let messages = [];
-        let error = undefined;
 
-        if (!this._isAuthorized()) {
-            return [null, "ApiClient not authorized"]
-        }
+        this.#requireAuthorization();
 
-        const [status, response] = this._request(
+        const data = restRequest(
             'GET',
             '/api/messages',
             {
@@ -131,23 +146,18 @@ class ApiClientRest {
             }
         );
 
-        // TODO: DEBUG
-        console.log("ApiClient.getMembers()", status, response);
+        validateResponseDataFields(data, ['messages']);
 
-        return [messages, error]
+        return data.messages;
     }
 
-    sendMessage(text) {
+    async sendMessage(text) {
         // POST /api/message
         // {api_token: "string", text: "string"}
-        let message = undefined;
-        let error = undefined;
 
-        if (!this._isAuthorized()) {
-            return [null, "ApiClient not authorized"]
-        }
+        this.#requireAuthorization();
 
-        const [status, response] = this._request(
+        const data = restRequest(
             'POST',
             '/api/message',
             {
@@ -156,10 +166,9 @@ class ApiClientRest {
             }
         );
 
-        // TODO: DEBUG
-        console.log("ApiClient.getMembers()", status, response);
+        validateResponseDataFields(data, ['message']);
 
-        return [message, error]
+        return data.message;
     }
 }
 
