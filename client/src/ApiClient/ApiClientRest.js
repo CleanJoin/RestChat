@@ -53,7 +53,7 @@ class ApiClientRest {
         return this.apiToken !== null;
     }
 
-    #requireAuthorization() {
+    requireAuthorization() {
         if (!this.isAuthorized()) {
             throw new Error("ApiClient is not authorized.");
         }
@@ -100,7 +100,7 @@ class ApiClientRest {
         // POST /api/logout
         // {api_token: "string"}
 
-        this.#requireAuthorization();
+        this.requireAuthorization();
 
         restRequest(
             'POST',
@@ -117,7 +117,7 @@ class ApiClientRest {
         // GET /api/members
         // {api_token: "string"}
 
-        this.#requireAuthorization();
+        this.requireAuthorization();
 
         const data = restRequest(
             'GET',
@@ -136,7 +136,7 @@ class ApiClientRest {
         // GET /api/messages
         // {api_token: "string"}
 
-        this.#requireAuthorization();
+        this.requireAuthorization();
 
         const data = restRequest(
             'GET',
@@ -155,7 +155,7 @@ class ApiClientRest {
         // POST /api/message
         // {api_token: "string", text: "string"}
 
-        this.#requireAuthorization();
+        this.requireAuthorization();
 
         const data = restRequest(
             'POST',
