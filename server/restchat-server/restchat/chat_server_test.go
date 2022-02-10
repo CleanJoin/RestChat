@@ -32,6 +32,60 @@ func TestRun(t *testing.T) {
 	}
 }
 
+func TestLogoutHandler(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	sessionStorage.Create(1)
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/logout", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, `{}`, w.Body.String())
+}
+func TestLogoutHandlerNotDelete(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	values := map[string]string{"api_token": "uy324uy34uyi234"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/logout", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusNotFound != w.Code {
+		t.Errorf("%v", w.Body) //{"error": "не удалось удалить сессию пользователя"}
+	}
+}
+
+func TestLogoutHandlerApiTokenBadRequest(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"api_token": }`))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} api_token
+	}
+}
+
 func TestUserHandler(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -47,8 +101,60 @@ func TestUserHandler(t *testing.T) {
 
 	chatServer.router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
-	fmt.Println(w.Body.String())
 	assert.Equal(t, fmt.Sprintf(`{"username":"%s"}`, usersstorage.Users[0].Username), w.Body.String())
+}
+
+func TestUserHandlerInStorage(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	values := map[string]string{"username": "Andrey", "password": "fghfghfghfgh"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusForbidden == w.Code {
+		t.Errorf("%v", w.Body) //{"error":"Пользователь существует в базе"}
+	}
+}
+
+func TestUserHandlerPasswordBadRequest(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"username": "Andrey1", "password": }`))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} password
+	}
+}
+
+func TestUserHandlerUserNameBadRequest(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"username": "Andrey1", "password": }`))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} UserName
+	}
 }
 
 func TestLoginHandler(t *testing.T) {
@@ -69,6 +175,7 @@ func TestLoginHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, fmt.Sprintf(`{"auth_token":"%s","member":{"id":%d,"name":"%s"}}`, sessionStorage.Sessions[0].AuthToken, 1, usersstorage.Users[0].Username), w.Body.String())
 }
+
 func TestLoginHandlerPassword(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -88,6 +195,7 @@ func TestLoginHandlerPassword(t *testing.T) {
 		t.Errorf("%v", w.Body) //{"error":"Не правильно введен пароль"}
 	}
 }
+
 func TestLoginHandlerUserName(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -103,12 +211,12 @@ func TestLoginHandlerUserName(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
-	fmt.Println(w.Body.UnreadByte().Error())
 	if http.StatusUnauthorized != w.Code {
 		t.Errorf("%v", w.Body) //{"error":"не нашелся пользователь по указанному Username: "}
 	}
 }
-func TestLoginHandlerUserPasswordRequest(t *testing.T) {
+
+func TestLoginHandlerPasswordBadRequest(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
@@ -121,11 +229,11 @@ func TestLoginHandlerUserPasswordRequest(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"username": "Andrey1", "password": }`))
 
 	chatServer.router.ServeHTTP(w, req)
-	fmt.Println(w.Body.UnreadByte().Error())
 	if http.StatusBadRequest != w.Code {
 		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} password
 	}
 }
+
 func TestLoginHandlerUserNameBadRequest(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -139,7 +247,6 @@ func TestLoginHandlerUserNameBadRequest(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"username": , "password":"fghfghfghfgh"}`))
 
 	chatServer.router.ServeHTTP(w, req)
-	fmt.Println(w.Body.UnreadByte().Error())
 	if http.StatusBadRequest != w.Code {
 		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} UserName
 	}
@@ -210,7 +317,6 @@ func TestCheckUserPassword(t *testing.T) {
 	if !checkUserPassword(userName, password, usersstorage) {
 		t.Errorf("Не корректный пароль")
 	}
-
 }
 
 func TestCheckUserPasswordEmpty(t *testing.T) {
@@ -220,5 +326,4 @@ func TestCheckUserPasswordEmpty(t *testing.T) {
 	if checkUserPassword(userName, password, usersstorage) {
 		t.Errorf("Пароль корректный")
 	}
-
 }
