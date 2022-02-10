@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -13,7 +14,7 @@ import (
 )
 
 func TestUse(t *testing.T) {
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
@@ -25,10 +26,128 @@ func TestUse(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Run()
 	if chatServer.router != nil {
 		t.Errorf("router сконфигурирован  %v", chatServer.router)
+	}
+}
+func TestMessagesHandler(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	for i := 0; i < 2; i++ {
+		messageStorage.Create(usersstorage.Users[0].ID, "Первое сообщение"+strconv.Itoa(i))
+	}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/messages", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+func TestMessagesHandlerEmpty(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/messages", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	outMembers := "{\n    \"messages\": []\n}"
+	assert.Equal(t, outMembers, w.Body.String())
+}
+func TestMessagesHandlerApiTokenBadRequest(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/messages", strings.NewReader(`{"api_token": }`))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} api_token
+	}
+}
+
+func TestMembersHandler(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	usersstorage.Create("Andrey", "fghfghfghfgh")
+	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/members", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	fmt.Println(w.Body.String())
+	assert.Equal(t, http.StatusOK, w.Code)
+	outMembers := "{\n    \"members\": [\n        {\n            \"id\": 1,\n            \"name\": \"Andrey\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Andrey2\"\n        }\n    ]\n}"
+	assert.Equal(t, outMembers, w.Body.String())
+}
+
+func TestMembersHandlerNotSession(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	values := map[string]string{"api_token": "34534534543535sadaf"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/members", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	outMembers := "{\n    \"members\": []\n}"
+	assert.Equal(t, outMembers, w.Body.String())
+}
+
+func TestMembersHandlerApiTokenBadRequest(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	messageStorage := NewMessageStorageMemory()
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/members", strings.NewReader(`{"api_token": }`))
+
+	chatServer.router.ServeHTTP(w, req)
+	if http.StatusBadRequest != w.Code {
+		t.Errorf("%v", w.Body) //{"error":"Не содержит поля в запросе"} api_token
 	}
 }
 
@@ -37,7 +156,7 @@ func TestLogoutHandler(t *testing.T) {
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 	sessionStorage.Create(1)
@@ -56,7 +175,7 @@ func TestLogoutHandlerNotDelete(t *testing.T) {
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	values := map[string]string{"api_token": "uy324uy34uyi234"}
@@ -75,7 +194,7 @@ func TestLogoutHandlerApiTokenBadRequest(t *testing.T) {
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
@@ -89,11 +208,11 @@ func TestLogoutHandlerApiTokenBadRequest(t *testing.T) {
 
 func TestUserHandler(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
-	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
+	usersStorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
-	chatServer.Use(sessionStorage, usersstorage, messageStorage)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersStorage, messageStorage)
 
 	values := map[string]string{"username": "Andrey", "password": "fghfghfghfgh"}
 	jsonValue, _ := json.Marshal(values)
@@ -101,8 +220,10 @@ func TestUserHandler(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
+
+	outUser := "{\n    \"username\": \"" + usersStorage.Users[0].Username + "\"\n}"
 	assert.Equal(t, http.StatusCreated, w.Code)
-	assert.Equal(t, fmt.Sprintf(`{"username":"%s"}`, usersstorage.Users[0].Username), w.Body.String())
+	assert.Equal(t, outUser, w.Body.String())
 }
 
 func TestUserHandlerInStorage(t *testing.T) {
@@ -110,7 +231,7 @@ func TestUserHandlerInStorage(t *testing.T) {
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 	usersstorage.Create("Andrey", "fghfghfghfgh")
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	values := map[string]string{"username": "Andrey", "password": "fghfghfghfgh"}
@@ -129,7 +250,7 @@ func TestUserHandlerPasswordBadRequest(t *testing.T) {
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
@@ -146,7 +267,7 @@ func TestUserHandlerUserNameBadRequest(t *testing.T) {
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
 	messageStorage := NewMessageStorageMemory()
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
@@ -164,7 +285,7 @@ func TestLoginHandler(t *testing.T) {
 	messageStorage := NewMessageStorageMemory()
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	values := map[string]string{"username": "Andrey", "password": "fghfghfghfgh"}
@@ -173,8 +294,9 @@ func TestLoginHandler(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
+	outSession := "{\n    \"auth_token\": \"" + sessionStorage.Sessions[0].AuthToken + "\",\n    \"member\": {\n        \"id\": 1,\n        \"name\": \"Andrey\"\n    }\n}"
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, fmt.Sprintf(`{"auth_token":"%s","member":{"id":%d,"name":"%s"}}`, sessionStorage.Sessions[0].AuthToken, 1, usersstorage.Users[0].Username), w.Body.String())
+	assert.Equal(t, outSession, w.Body.String())
 }
 
 func TestLoginHandlerPassword(t *testing.T) {
@@ -183,7 +305,7 @@ func TestLoginHandlerPassword(t *testing.T) {
 	messageStorage := NewMessageStorageMemory()
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	values := map[string]string{"username": "Andrey", "password": "fghfghfghfghdfdf"}
@@ -203,7 +325,7 @@ func TestLoginHandlerUserName(t *testing.T) {
 	messageStorage := NewMessageStorageMemory()
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	values := map[string]string{"username": "Andrey1", "password": "fghfghfghfgh"}
@@ -223,7 +345,7 @@ func TestLoginHandlerPasswordBadRequest(t *testing.T) {
 	messageStorage := NewMessageStorageMemory()
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
@@ -241,7 +363,7 @@ func TestLoginHandlerUserNameBadRequest(t *testing.T) {
 	messageStorage := NewMessageStorageMemory()
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 
-	chatServer := NewChatServerGin("localhost", 300, 8080)
+	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
