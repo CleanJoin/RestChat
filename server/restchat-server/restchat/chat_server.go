@@ -81,7 +81,7 @@ func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.
 	return func(ctx *gin.Context) {
 		requestUser := new(RequestUser)
 
-		statusCode, ctx2, checkBadRequest := validateBadRequest(ctx, requestUser)
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
 
 		if !checkBadRequest {
 			ctx.JSON(statusCode, ctx2)
@@ -119,11 +119,20 @@ func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.
 
 func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		session, _ := sessionStorage.Create(4000)
-		fmt.Println("handler func:", session.AuthToken)
-		ctx.JSON(http.StatusOK, gin.H{
-			"api_token": session.AuthToken,
-		})
+		requestApiToken := new(RequestApiToken)
+
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestApiToken)
+
+		if !checkBadRequest {
+			ctx.JSON(statusCode, ctx2)
+			return
+		}
+		err := sessionStorage.Delete(requestApiToken.ApiToken)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{})
 	}
 }
 
@@ -131,7 +140,7 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		requestUser := new(RequestUser)
 
-		statusCode, ctx2, checkBadRequest := validateBadRequest(ctx, requestUser)
+		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestUser)
 
 		if !checkBadRequest {
 			ctx.JSON(statusCode, ctx2)
@@ -149,11 +158,11 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 		}
 		userMode, err := userStorage.GetByName(requestUser.Username)
 		if err == nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь существует в базе"})
 			return
 		}
 		userMode, err = userStorage.Create(requestUser.Username, requestUser.Password)
-		if err != nil {
+		if err == nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
@@ -210,7 +219,7 @@ func checkUserPassword(userName string, password string, userStorage IUserStorag
 	return err == nil && userModel.PasswordHash == new(PasswordHasherSha1).CalculateHash(password)
 }
 
-func validateBadRequest(ctx *gin.Context, requestData interface{}) (int, interface{}, bool) {
+func validateClientRequest(ctx *gin.Context, requestData interface{}) (int, interface{}, bool) {
 
 	err := ctx.BindJSON(&requestData)
 	if err != nil {
