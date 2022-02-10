@@ -49,11 +49,16 @@ func getLastSessionId(sessionStorage *SessionStorageMemory) uint {
 
 func (sessionStorage *SessionStorageMemory) Delete(apiToken string) error {
 	index := 0
+	status := false
 	for i, r := range sessionStorage.Sessions {
 		if r.AuthToken == apiToken {
 			index = i
+			status = true
 			break
 		}
+	}
+	if !status {
+		return fmt.Errorf("не удалось удалить сессию пользователя")
 	}
 	sessionStorage.Sessions = deleteSessionByIndex(sessionStorage.Sessions, index)
 	return nil
