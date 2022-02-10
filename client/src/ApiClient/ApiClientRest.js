@@ -50,7 +50,7 @@ class ApiClientRest {
     }
 
     isAuthorized() {
-        return this.apiToken == null;
+        return this.apiToken !== null;
     }
 
     #requireAuthorization() {
