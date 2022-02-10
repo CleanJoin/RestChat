@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+//test написать
+func TestGetUserId(t *testing.T) {
+
+}
+
 func TestGetOnlineUserIds(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 2, AuthToken: "a396776f58b942fb9b10ebc798ab6303"})
