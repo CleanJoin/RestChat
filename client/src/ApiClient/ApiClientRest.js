@@ -82,7 +82,7 @@ class ApiClientRest {
         // POST /api/user
         // {username: "string", password: "string"}
 
-        const data = restRequest(
+        const data = await restRequest(
             'POST',
             '/api/user',
             {
@@ -102,7 +102,7 @@ class ApiClientRest {
 
         this.requireAuthorization();
 
-        restRequest(
+        await restRequest(
             'POST',
             '/api/logout',
             {
@@ -119,7 +119,7 @@ class ApiClientRest {
 
         this.requireAuthorization();
 
-        const data = restRequest(
+        const data = await restRequest(
             'GET',
             '/api/members',
             {
@@ -138,7 +138,7 @@ class ApiClientRest {
 
         this.requireAuthorization();
 
-        const data = restRequest(
+        const data = await restRequest(
             'GET',
             '/api/messages',
             {
@@ -157,7 +157,7 @@ class ApiClientRest {
 
         this.requireAuthorization();
 
-        const data = restRequest(
+        const data = await restRequest(
             'POST',
             '/api/message',
             {
