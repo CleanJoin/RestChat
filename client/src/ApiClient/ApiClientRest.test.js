@@ -45,7 +45,6 @@ describe('ApiClientRest authorization requirements', () => {
 describe('ApiClientRest new user registration', () => {
 
     test('creating unique new user should succeed', async () => {
-        const client = new ApiClientRest();
         const newUserName = 'AbsolutelyUnknownNewUser';
         const newPassword = 'p-word';
 
