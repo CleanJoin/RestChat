@@ -11,17 +11,17 @@ async function restRequest(method, url, payload) {
         }
     );
 
-    const message = response.json();
+    const data = response.json();
 
     if (!response.ok) {
-        if (message.hasOwnProperty('error')) {
-            throw new Error(message.error);
+        if (data.hasOwnProperty('error')) {
+            throw new Error(data.error);
         } else {
             throw new Error(`Server error: ${response.status}: ${response.statusText}`)
         }
     }
 
-    return response.json();
+    return data;
 }
 
 function validateResponseDataFields(jsonResponse, requiredFields) {
