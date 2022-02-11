@@ -7,7 +7,30 @@ import (
 
 //test написать
 func TestGetUserId(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 2, AuthToken: "a396776f58b942fb9b10ebc798ab6303"})
 
+	request, err := sessionStorage.GetUserId(sessionStorage.Sessions[0].AuthToken)
+	if request != 2 {
+		t.Errorf("Пользователь не найден по токену  %v", sessionStorage.Sessions[0].AuthToken)
+	}
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+}
+
+func TestGetUserIdBadAuthToken(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 2, AuthToken: "a396776f58b942fb9b10ebc798ab6303"})
+
+	request, err := sessionStorage.GetUserId("a396776f58b942fb9b10ebc798ab630")
+
+	if err == nil {
+		t.Errorf("Пользователь найден по токену %v", err)
+	}
+	if request == 2 {
+		t.Errorf("Пользователь найден по токену  %v", sessionStorage.Sessions[0].AuthToken)
+	}
 }
 
 func TestGetOnlineUserIds(t *testing.T) {

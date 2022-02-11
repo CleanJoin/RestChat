@@ -56,7 +56,7 @@ func (messageStorage *MessageStorageMemory) GetLast(n uint) ([]MessageModel, err
 	return copylastmessages, nil
 }
 func minUint(len int, maxMessages uint) (min uint) {
-	if uint(len) > maxMessages {
+	if uint(len) >= maxMessages {
 		return maxMessages
 	}
 	return uint(len)

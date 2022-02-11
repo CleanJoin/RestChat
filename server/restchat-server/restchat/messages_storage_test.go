@@ -6,6 +6,21 @@ import (
 	"time"
 )
 
+func TestMinUint(t *testing.T) {
+
+	len := []int{3, 4, 5, 7, 8, 9, 10}
+	maxMessages := []uint{5, 5, 5, 5, 5, 5, 5}
+	min := []uint{}
+	out := []uint{3, 4, 5, 5, 5, 5, 5}
+
+	for i := range len {
+		min = append(min, minUint(len[i], maxMessages[i]))
+	}
+	if !reflect.DeepEqual(min, out) {
+		t.Errorf("Не правильно опредлись минимальные элементы массива:\n %v\n %v\n", min, out)
+	}
+}
+
 func TestGetLastMessageIdEmpty(t *testing.T) {
 	messageStorage := new(MessageStorageMemory)
 	if getLastMessageId(messageStorage) != 0 {
@@ -70,7 +85,7 @@ func TestGetLast(t *testing.T) {
 	outmessage.Messages = append(outmessage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 
 	request, err := messageStorage.GetLast(lastSequence)
-	if reflect.DeepEqual(request, outmessage.Messages) != true {
+	if !reflect.DeepEqual(request, outmessage.Messages) {
 		t.Errorf("Не корректный список сообщений \n%v\n%v", request, outmessage.Messages)
 	}
 	if err != nil {
