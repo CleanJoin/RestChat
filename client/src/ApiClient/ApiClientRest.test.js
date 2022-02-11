@@ -36,7 +36,7 @@ describe('ApiClientRest authorization requirements', () => {
     test('sendMessage() requires authorization', async () => {
         const client = new ApiClientRest();
         await expect(async () => {
-            await client.getMessages();
+            await client.sendMessage("Some message");
         }).rejects.toThrowError(/not authorized/i);
     });
 
