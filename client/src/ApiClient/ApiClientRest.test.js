@@ -44,7 +44,7 @@ describe('ApiClientRest authorization requirements', () => {
 
 describe('ApiClientRest new user registration', () => {
 
-    test('Creating unique new user should succeed', async () => {
+    test('creating unique new user should succeed', async () => {
         const client = new ApiClientRest();
         const newUserName = 'AbsolutelyUnknownNewUser';
         const newPassword = 'p-word';
@@ -55,6 +55,9 @@ describe('ApiClientRest new user registration', () => {
 
         const registeredUserName = await client.register(newUserName, newPassword);
         expect(registeredUserName).toEqual(newUserName);
+
+        const memberName = await client.login(newUserName, newPassword);
+        expect(memberName).toEqual(newUserName);
     });
 
 });
