@@ -282,7 +282,7 @@ func TestLogoutHandlerApiTokenBadRequest(t *testing.T) {
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"api_token": }`))
+	req, _ := http.NewRequest("POST", "/api/logout", strings.NewReader(`{"api_token": }`))
 
 	chatServer.router.ServeHTTP(w, req)
 	if http.StatusBadRequest != w.Code {
@@ -338,7 +338,7 @@ func TestUserHandlerPasswordBadRequest(t *testing.T) {
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"username": "Andrey1", "password": }`))
+	req, _ := http.NewRequest("POST", "/api/user", strings.NewReader(`{"username": "Andrey1", "password": }`))
 
 	chatServer.router.ServeHTTP(w, req)
 	if http.StatusBadRequest != w.Code {
@@ -355,7 +355,7 @@ func TestUserHandlerUserNameBadRequest(t *testing.T) {
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/login", strings.NewReader(`{"username": "Andrey1", "password": }`))
+	req, _ := http.NewRequest("POST", "/api/user", strings.NewReader(`{"username": "Andrey1", "password": }`))
 
 	chatServer.router.ServeHTTP(w, req)
 	if http.StatusBadRequest != w.Code {
