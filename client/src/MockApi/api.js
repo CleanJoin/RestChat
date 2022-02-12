@@ -16,6 +16,7 @@ export class MockApiServer {
     }
 
     start() {
+        this.reset()
         this.server.start();
     }
 

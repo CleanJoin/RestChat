@@ -15,7 +15,6 @@ const mockServer = new MockApiServer(
 );
 
 beforeEach(() => {
-    mockServer.reset();
     mockServer.start();
 });
 
