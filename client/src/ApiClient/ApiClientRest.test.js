@@ -1,23 +1,9 @@
-import mockApiServer from '../MockApi/server';
 import ApiClientRest from './ApiClientRest';
 
 let client = null;
-const mockServer = mockApiServer;
-
-beforeAll(() => {
-    mockServer.listen();
-});
 
 beforeEach(() => {
     client = new ApiClientRest();
-});
-
-afterEach(() => {
-    mockServer.resetHandlers();
-});
-
-afterAll(() => {
-    mockServer.close();
 });
 
 describe('ApiClientRest authorization requirements', () => {

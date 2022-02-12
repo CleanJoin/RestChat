@@ -3,18 +3,21 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
-import mockApiServer from './MockApi/server'
+import mockDbFabric from './MockApi/db';
+import mockHandlersFabric from './MockApi/handlers';
+import { MockApiServer, ApiBuilderServer } from './MockApi/server'
 
-const mockServer = mockApiServer;
+const mockServer = new MockApiServer(
+    new ApiBuilderServer(),
+    mockDbFabric,
+    mockHandlersFabric
+);
 
-beforeAll(() => {
-    mockServer.listen();
+beforeEach(() => {
+    mockServer.reset();
+    mockServer.start();
 });
 
 afterEach(() => {
-    mockServer.resetHandlers();
-});
-
-afterAll(() => {
-    mockServer.close();
+    mockServer.stop();
 });
