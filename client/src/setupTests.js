@@ -5,7 +5,8 @@
 import '@testing-library/jest-dom';
 import mockDbFabric from './MockApi/db';
 import mockHandlersFabric from './MockApi/handlers';
-import { MockApiServer, ApiBuilderServer } from './MockApi/server'
+import { ApiBuilderServer } from './MockApi/server';
+import { MockApiServer } from './MockApi/api'
 
 const mockServer = new MockApiServer(
     new ApiBuilderServer(),
