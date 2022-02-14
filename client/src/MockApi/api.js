@@ -1,5 +1,3 @@
-import { setupWorker } from 'msw';
-
 export class MockApiServer {
     constructor(apiBuilder, dbFabric, handlersFabric) {
         this.server = apiBuilder;
