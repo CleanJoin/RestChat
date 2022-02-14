@@ -23,6 +23,12 @@ const docTemplate_swagger = `{
         "/api/health": {
             "get": {
                 "description": "get the status of server.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Get Info"
                 ],
@@ -128,7 +134,7 @@ const docTemplate_swagger = `{
         },
         "/api/messages": {
             "post": {
-                "description": "Получить n последниx сообщений чата",
+                "description": "Получить список сообщений",
                 "produces": [
                     "application/json"
                 ],
@@ -212,10 +218,10 @@ const docTemplate_swagger = `{
 // SwaggerInfo_swagger holds exported Swagger Info so clients can modify it
 var SwaggerInfo_swagger = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "localhost:8000",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Swagger Example API",
+	Title:            "Swagger RestChat",
 	Description:      "This is a sample server Rest API Server Chat.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate_swagger,

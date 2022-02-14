@@ -19,19 +19,23 @@ definitions:
       username:
         type: string
     type: object
-host: localhost:8080
+host: localhost:8000
 info:
   contact:
     name: Github.com
     url: https://github.com/CleanJoin/RestChat/
   description: This is a sample server Rest API Server Chat.
   termsOfService: https://github.com/CleanJoin/RestChat/
-  title: Swagger Example API
+  title: Swagger RestChat
   version: "1.0"
 paths:
   /api/health:
     get:
+      consumes:
+      - application/json
       description: get the status of server.
+      produces:
+      - application/json
       responses: {}
       summary: Show the status of server.
       tags:
@@ -102,7 +106,7 @@ paths:
       - Auth
   /api/messages:
     post:
-      description: Получить n последниx сообщений чата
+      description: Получить список сообщений
       parameters:
       - description: User ApiToken
         in: body
