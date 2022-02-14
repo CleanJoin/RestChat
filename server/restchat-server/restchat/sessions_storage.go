@@ -14,6 +14,7 @@ type ISessionStorage interface {
 	GetOnlineUserIds() ([]uint, error)
 	Delete(apiToken string) error
 	Create(userId uint) (SessionModel, error)
+	GetUserId(apiToken string) (uint, error)
 }
 
 func NewSessionStorageMemory(tokenGenerator ITokenGenerator) *SessionStorageMemory {
@@ -25,7 +26,7 @@ func NewSessionStorageMemory(tokenGenerator ITokenGenerator) *SessionStorageMemo
 
 func (sessionStorage *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
 	if sessionStorage == nil || len(sessionStorage.Sessions) == 0 {
-		return nil, fmt.Errorf("все пользователи не в сети")
+		return nil, fmt.Errorf("пользователи не в сети")
 	}
 	var onlineUsers []uint
 	for _, r := range sessionStorage.Sessions {
@@ -33,6 +34,20 @@ func (sessionStorage *SessionStorageMemory) GetOnlineUserIds() ([]uint, error) {
 	}
 	return onlineUsers, nil
 }
+
+func (sessionStorage *SessionStorageMemory) GetUserId(apiToken string) (uint, error) {
+	if sessionStorage == nil || len(sessionStorage.Sessions) == 0 {
+		return 0, fmt.Errorf("пользователи не в сети")
+	}
+
+	for _, ss := range sessionStorage.Sessions {
+		if apiToken == ss.AuthToken {
+			return ss.UserId, nil
+		}
+	}
+	return 0, fmt.Errorf("по токену нет такого пользователя")
+}
+
 func deleteSessionByIndex(sm []SessionModel, index int) []SessionModel {
 	return append(sm[:index], sm[index+1:]...)
 }
@@ -49,11 +64,16 @@ func getLastSessionId(sessionStorage *SessionStorageMemory) uint {
 
 func (sessionStorage *SessionStorageMemory) Delete(apiToken string) error {
 	index := 0
+	status := false
 	for i, r := range sessionStorage.Sessions {
 		if r.AuthToken == apiToken {
 			index = i
+			status = true
 			break
 		}
+	}
+	if !status {
+		return fmt.Errorf("не удалось удалить сессию пользователя")
 	}
 	sessionStorage.Sessions = deleteSessionByIndex(sessionStorage.Sessions, index)
 	return nil

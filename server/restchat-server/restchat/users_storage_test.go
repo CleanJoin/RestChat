@@ -79,7 +79,7 @@ func TestGetByIds(t *testing.T) {
 		t.Errorf("не нашелся пользователь по указанным идентификаторам %v", err)
 	}
 	outUserModel := []UserModel{{ID: 2, Username: "Андрей2", PasswordHash: request[0].PasswordHash}, {ID: 3, Username: "Андрей3", PasswordHash: request[1].PasswordHash}, {ID: 6, Username: "Андрей6", PasswordHash: request[2].PasswordHash}, {ID: 7, Username: "Андрей7", PasswordHash: request[3].PasswordHash}}
-	if reflect.DeepEqual(request, outUserModel) != true {
+	if !reflect.DeepEqual(request, outUserModel) {
 		t.Errorf("Не верный список пользователей %v %v", request, outUserModel)
 	}
 }
