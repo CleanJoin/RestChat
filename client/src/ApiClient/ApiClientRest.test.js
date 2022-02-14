@@ -197,7 +197,6 @@ describe('ApiClientRest can receive and send messages', () => {
         const messages2 = await client.getMessages();
         expect(messages2.length).toEqual(10);
 
-        console.log(messages);
     });
 
 });
