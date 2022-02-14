@@ -1,0 +1,135 @@
+basePath: /
+definitions:
+  restchat.RequestApiToken:
+    properties:
+      api_token:
+        type: string
+    type: object
+  restchat.RequestMessage:
+    properties:
+      api_token:
+        type: string
+      text:
+        type: string
+    type: object
+  restchat.RequestUser:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Github.com
+    url: https://github.com/CleanJoin/RestChat/
+  description: This is a sample server Rest API Server Chat.
+  termsOfService: https://github.com/CleanJoin/RestChat/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /api/health:
+    get:
+      description: get the status of server.
+      responses: {}
+      summary: Show the status of server.
+      tags:
+      - Get Info
+  /api/login:
+    post:
+      description: Вход пользователя в чат
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/restchat.RequestUser'
+      produces:
+      - application/json
+      responses: {}
+      summary: loginHandler
+      tags:
+      - Auth
+  /api/logout:
+    post:
+      description: Выход пользователя из чата
+      parameters:
+      - description: User ApiToken
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/restchat.RequestApiToken'
+      produces:
+      - application/json
+      responses: {}
+      summary: logoutHandler
+      tags:
+      - Auth
+  /api/members:
+    post:
+      description: Получить список online пользователей
+      parameters:
+      - description: User ApiToken
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/restchat.RequestApiToken'
+      produces:
+      - application/json
+      responses: {}
+      summary: membersHandler
+      tags:
+      - Get Info
+  /api/message:
+    post:
+      description: Отправить сообщение
+      parameters:
+      - description: User Data
+        in: body
+        name: MessageSend
+        required: true
+        schema:
+          $ref: '#/definitions/restchat.RequestMessage'
+      produces:
+      - application/json
+      responses: {}
+      summary: messageHandler
+      tags:
+      - Auth
+  /api/messages:
+    post:
+      description: Получить n последниx сообщений чата
+      parameters:
+      - description: User ApiToken
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/restchat.RequestApiToken'
+      produces:
+      - application/json
+      responses: {}
+      summary: messagesHandler
+      tags:
+      - Get Info
+  /api/user:
+    post:
+      description: Регистарция пользователя
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/restchat.RequestUser'
+      produces:
+      - application/json
+      responses: {}
+      summary: userHandler
+      tags:
+      - Auth
+swagger: "2.0"
