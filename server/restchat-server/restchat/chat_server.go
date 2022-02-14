@@ -75,8 +75,8 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 	chat.router.POST("/api/user", userHandler(chat.userStorage))
 	chat.router.POST("/api/login", loginHandler(chat.sessionStorage, chat.userStorage))
 	chat.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
-	chat.router.POST("/api/members", membersHandler(chat.sessionStorage, chat.userStorage))
-	chat.router.POST("/api/messages", messagesHandler(chat.messageStorage, chat.userStorage, chat.maxLastMessages))
+	chat.router.GET("/api/members", membersHandler(chat.sessionStorage, chat.userStorage))
+	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.userStorage, chat.sessionStorage, chat.maxLastMessages))
 	chat.router.POST("/api/message", messageHandler(chat.messageStorage, chat.userStorage, chat.sessionStorage))
 	chat.router.GET("/api/health", heathHandler())
 }
@@ -164,12 +164,16 @@ func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 		requestApiToken := new(RequestApiToken)
 
 		statusCode, ctx2, checkBadRequest := validateClientRequest(ctx, requestApiToken)
-
 		if !checkBadRequest {
 			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
-		err := sessionStorage.Delete(requestApiToken.ApiToken)
+		_, err := sessionStorage.GetUserId(requestApiToken.ApiToken)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		err = sessionStorage.Delete(requestApiToken.ApiToken)
 		if err != nil {
 			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -267,14 +271,7 @@ func membersHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gi
 	}
 }
 
-// messagesHandler godoc
-// @tags Get Info
-// @Summary messagesHandler
-// @Description Получить n последниx сообщений чата
-// @Produce json
-// @Param user body RequestApiToken true "User ApiToken"
-// @Router /api/messages [post]
-func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, maxLastMessages uint) gin.HandlerFunc {
+func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, sessionStorage ISessionStorage, maxLastMessages uint) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		requestApiToken := new(RequestMessage)
@@ -284,6 +281,12 @@ func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, m
 			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
+		_, err := sessionStorage.GetUserId(requestApiToken.ApiToken)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
 		messageModel, err := messageStorage.GetLast(maxLastMessages)
 		if err != nil {
 			type NewMessages struct {
