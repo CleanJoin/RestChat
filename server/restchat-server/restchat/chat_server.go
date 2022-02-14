@@ -75,8 +75,8 @@ func (chat *ChatServerGin) Use(sessionStorage ISessionStorage, userStorage IUser
 	chat.router.POST("/api/user", userHandler(chat.userStorage))
 	chat.router.POST("/api/login", loginHandler(chat.sessionStorage, chat.userStorage))
 	chat.router.POST("/api/logout", logoutHandler(chat.sessionStorage))
-	chat.router.GET("/api/members", membersHandler(chat.sessionStorage, chat.userStorage))
-	chat.router.GET("/api/messages", messagesHandler(chat.messageStorage, chat.userStorage, chat.sessionStorage, chat.maxLastMessages))
+	chat.router.POST("/api/members", membersHandler(chat.sessionStorage, chat.userStorage))
+	chat.router.POST("/api/messages", messagesHandler(chat.messageStorage, chat.userStorage, chat.sessionStorage, chat.maxLastMessages))
 	chat.router.POST("/api/message", messageHandler(chat.messageStorage, chat.userStorage, chat.sessionStorage))
 	chat.router.GET("/api/health", heathHandler())
 }
