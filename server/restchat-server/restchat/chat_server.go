@@ -368,7 +368,7 @@ func messageHandler(messageStorage IMessageStorage, userStorage IUserStorage, se
 			Text       string    "json:\"text\""
 			Time       time.Time "json:\"time\""
 		}{messageModel.ID, userModel.Username, messageModel.Text, messageModel.Time})
-		ctx.IndentedJSON(http.StatusOK, newMessages.Messages)
+		ctx.IndentedJSON(http.StatusCreated, newMessages.Messages)
 	}
 }
 
