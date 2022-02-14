@@ -438,7 +438,7 @@ git push
 **Сообщение успешно создано**:
 
 ```http
-200 OK
+201 CREATED
 ```
 
 ```json
@@ -446,8 +446,8 @@ git push
 	"message": {
         "id": 1002,
         "member_name": "petya",
-	    "text": "hello",
-	    "time": "2022-02-04T13:28:77Z"
+        "text": "hello",
+        "time": "2022-02-04T13:28:77Z"
 	}
 }
 ```
