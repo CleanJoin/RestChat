@@ -2,6 +2,8 @@ import { rest } from 'msw';
 import { StatusCodes } from 'http-status-codes';
 import { v4 as uuid } from 'uuid';
 
+const MAX_MESSAGES_NUMBER = 100;
+
 function mockHandlersFabric(db) {
 
     const handlers = [
@@ -18,7 +20,7 @@ function mockHandlersFabric(db) {
             const { username, password } = req.body;
 
             const existingUser = db.user.findFirst({
-                where: { username: {equals: username} }
+                where: { username: { equals: username } }
             });
 
             if (existingUser !== null) {
@@ -44,7 +46,7 @@ function mockHandlersFabric(db) {
             const { username, password } = req.body;
 
             const user = db.user.findFirst({
-                where: { username: {equals: username} }
+                where: { username: { equals: username } }
             });
 
             if (user === null || user.password !== password) {
@@ -59,7 +61,7 @@ function mockHandlersFabric(db) {
             const apiToken = uuid();
 
             db.user.update({
-                where: { id: { equals: user.id }},
+                where: { id: { equals: user.id } },
                 data: {
                     online: true,
                     apiToken: apiToken,
@@ -83,7 +85,7 @@ function mockHandlersFabric(db) {
 
             // TODO: extract authorization method
             const user = db.user.findFirst({
-                where: { apiToken: {equals: apiToken }}
+                where: { apiToken: { equals: apiToken } }
             });
 
             if (user === null) {
@@ -96,7 +98,7 @@ function mockHandlersFabric(db) {
             }
 
             db.user.update({
-                where: { id: { equals: user.id }},
+                where: { id: { equals: user.id } },
                 data: {
                     online: false,
                     apiToken: '',
@@ -114,7 +116,7 @@ function mockHandlersFabric(db) {
 
             // TODO: extract authorization method
             const user = db.user.findFirst({
-                where: { apiToken: {equals: apiToken }}
+                where: { apiToken: { equals: apiToken } }
             });
 
             if (user === null) {
@@ -127,7 +129,7 @@ function mockHandlersFabric(db) {
             }
 
             const members = db.user.findMany({
-                where: { online: {equals: true}}
+                where: { online: { equals: true } }
             });
 
             const onlineMembers = [];
@@ -151,7 +153,7 @@ function mockHandlersFabric(db) {
 
             // TODO: extract authorization method
             const user = db.user.findFirst({
-                where: { apiToken: {equals: apiToken }}
+                where: { apiToken: { equals: apiToken } }
             });
 
             if (user === null) {
@@ -163,12 +165,28 @@ function mockHandlersFabric(db) {
                 )
             }
 
-            const messages = db.message.getAll();
+            const messages = db.message.findMany({
+                take: MAX_MESSAGES_NUMBER,
+                orderBy: [
+                    { time: 'dsc' },
+                    { id: 'dsc' },
+                ]
+            });
+
+            const outputMessages = [];
+            for (const message of messages) {
+                outputMessages.push({
+                    id: message.id,
+                    member_name: message.user.username,
+                    text: message.text,
+                    time: message.time,
+                });
+            }
 
             return res(
                 ctx.status(StatusCodes.OK),
                 ctx.json({
-                    messages: messages,
+                    messages: outputMessages,
                 }),
             );
         }),
