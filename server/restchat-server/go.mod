@@ -9,8 +9,6 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0
-	github.com/jackc/pgx v3.6.2+incompatible
-	github.com/jackc/pgx/v4 v4.15.0
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
