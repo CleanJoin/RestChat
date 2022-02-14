@@ -33,3 +33,17 @@ services:
       - restchat_server
       - proxy 
     command: echo "Run functional tests with 'docker-compose run functional_tests yarn cypress run'"
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "restchat"
+      POSTGRES_USER: "restchat"
+      POSTGRES_PASSWORD: "qweasd123"
+    ports:
+      - 6000:5432
+    volumes:
+        - ./docs/init.sql:/docker-entrypoint-initdb.d/10-init.sql
+        
+   
+  
