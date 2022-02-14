@@ -114,13 +114,13 @@ class ApiClientRest {
     }
 
     async getMembers() {
-        // GET /api/members
+        // POST /api/members
         // {api_token: "string"}
 
         this.requireAuthorization();
 
         const data = await restRequest(
-            'GET',
+            'POST',
             '/api/members',
             {
                 api_token: this.apiToken
@@ -133,13 +133,13 @@ class ApiClientRest {
     }
 
     async getMessages() {
-        // GET /api/messages
+        // POST /api/messages
         // {api_token: "string"}
 
         this.requireAuthorization();
 
         const data = await restRequest(
-            'GET',
+            'POST',
             '/api/messages',
             {
                 api_token: this.apiToken
