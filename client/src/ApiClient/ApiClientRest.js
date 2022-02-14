@@ -110,7 +110,7 @@ class ApiClientRest {
             }
         );
 
-        this.apiToken = undefined;
+        this.apiToken = null;
     }
 
     async getMembers() {
