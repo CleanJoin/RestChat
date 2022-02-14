@@ -271,6 +271,13 @@ func membersHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gi
 	}
 }
 
+// messagesHandler godoc
+// @tags Get Info
+// @Summary messagesHandler
+// @Description Получить список сообщений
+// @Produce json
+// @Param user body RequestApiToken true "User ApiToken"
+// @Router /api/messages [post]
 func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, sessionStorage ISessionStorage, maxLastMessages uint) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 

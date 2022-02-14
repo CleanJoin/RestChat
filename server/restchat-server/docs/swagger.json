@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "This is a sample server Rest API Server Chat.",
-        "title": "Swagger Example API",
+        "title": "Swagger RestChat",
         "termsOfService": "https://github.com/CleanJoin/RestChat/",
         "contact": {
             "name": "Github.com",
@@ -10,12 +10,18 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "localhost:8000",
     "basePath": "/",
     "paths": {
         "/api/health": {
             "get": {
                 "description": "get the status of server.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Get Info"
                 ],
@@ -121,7 +127,7 @@
         },
         "/api/messages": {
             "post": {
-                "description": "Получить n последниx сообщений чата",
+                "description": "Получить список сообщений",
                 "produces": [
                     "application/json"
                 ],
