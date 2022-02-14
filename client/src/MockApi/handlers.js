@@ -191,6 +191,42 @@ function mockHandlersFabric(db) {
             );
         }),
 
+        rest.post('/api/message', (req, res, ctx) => {
+            const apiToken = req.body.api_token;
+            const text = req.body.text;
+
+            // TODO: extract authorization method
+            const user = db.user.findFirst({
+                where: { apiToken: { equals: apiToken } }
+            });
+
+            if (user === null) {
+                return res(
+                    ctx.status(StatusCodes.UNAUTHORIZED),
+                    ctx.json({
+                        error: "User session not found!"
+                    })
+                )
+            }
+
+            const message = db.message.create({
+                text: text,
+                time: new Date(),
+                user: user,
+            });
+
+            return res(
+                ctx.status(StatusCodes.CREATED),
+                ctx.json({
+                    message: {
+                        id: message.id,
+                        member_name: message.user.username,
+                        text: message.text,
+                        time: message.time,
+                    }
+                })
+            );
+        }),
 
     ];
 
