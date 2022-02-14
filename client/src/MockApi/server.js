@@ -11,7 +11,7 @@ export class ApiBuilderServer {
 
     start() {
         if (this.server !== null) {
-            this.server.listen();
+            this.server.listen({ onUnhandledRequest: 'error' });
         } else {
             throw new Error("MockApi server was not initialized before listen() call");
         }
