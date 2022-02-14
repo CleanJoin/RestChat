@@ -180,6 +180,7 @@ describe('ApiClientRest get members list', () => {
 });
 
 describe('ApiClientRest can receive and send messages', () => {
+
     test('authorized user should get previous chat messages', async () => {
         await client.login('User-1', 'User-1_password');
         const messages = await client.getMessages();
@@ -197,6 +198,43 @@ describe('ApiClientRest can receive and send messages', () => {
         const messages2 = await client.getMessages();
         expect(messages2.length).toEqual(10);
 
+    });
+
+    test('client can send message and receive it back', async () => {
+        const text = "This is very new message sent by User-1";
+
+        await client.login('User-1', 'User-1_password');
+        let messagesBefore = await client.getMessages();
+
+        // Message should not be present in message list yet
+        expect(messagesBefore.filter(msg => msg.text === text).length).toEqual(0);
+
+        await client.sendMessage(text);
+        let messagesAfter = await client.getMessages();
+        expect(messagesAfter.filter(msg => msg.text === text).length).toEqual(1);
+
+        const newMessage = messagesAfter.filter(msg => msg.text === text)[0];
+        expect(newMessage.member_name).toEqual('User-1');
+
+    });
+
+    test('other client should see new message', async () => {
+        const text = "This is example of message sent by User-3 for User-6";
+
+        await client.login('User-3', 'User-3_password');
+        let messagesBefore = await client.getMessages();
+        expect(messagesBefore.filter(msg => msg.text === text).length).toEqual(0);
+
+        const client2 = new ApiClientRest();
+        await client2.login('User-6', 'User-6_password');
+
+        // Message should not be present in message list yet
+        expect(messagesBefore.filter(msg => msg.text === text).length).toEqual(0);
+
+        await client.sendMessage(text);
+
+        let messagesAfter = await client2.getMessages();
+        expect(messagesAfter.filter(msg => msg.text === text).length).toEqual(1);
     });
 
 });
