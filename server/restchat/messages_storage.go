@@ -22,16 +22,6 @@ func NewMessageStorageMemory() *MessageStorageMemory {
 	return msm
 }
 
-// func getLastMessageId(messageStorage *MessageStorageMemory) uint {
-// 	if messageStorage == nil || len(messageStorage.Messages) == 0 {
-// 		return 0
-// 	}
-// 	sort.Slice(messageStorage.Messages, func(i, j int) bool {
-// 		return messageStorage.Messages[i].ID > messageStorage.Messages[j].ID
-// 	})
-// 	return messageStorage.Messages[0].ID
-// }
-
 func (messageStorage *MessageStorageMemory) Create(userId uint, text string) (MessageModel, error) {
 
 	lenlastmessages := len(messageStorage.Messages)

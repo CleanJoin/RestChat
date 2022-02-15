@@ -35,13 +35,13 @@ func (userStorage *UserStorageMemory) Create(username string, password string) (
 	return userStorage.Users[len(userStorage.Users)-1], nil
 }
 
-func (userStorage *UserStorageMemory) GetByName(username string) (UserModel, error) {
+func (userStorage *UserStorageMemory) GetByName(name string) (UserModel, error) {
 	for i, r := range userStorage.Users {
-		if r.Username == username {
+		if r.Username == name {
 			return userStorage.Users[i], nil
 		}
 	}
-	return UserModel{}, fmt.Errorf("не нашелся пользователь по указанному Username: %v", username)
+	return UserModel{}, fmt.Errorf("не нашелся пользователь по указанному Username: %v", name)
 }
 
 func (userStorage *UserStorageMemory) GetById(id uint) (UserModel, error) {
