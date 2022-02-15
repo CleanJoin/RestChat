@@ -39,7 +39,8 @@ func (userStorage *UserStorageMemory) Create(username string, password string) (
 	passwordHash := userStorage.passwordHasher.CalculateHash(password)
 	userStorage.Users = append(userStorage.Users, UserModel{ID: id, Username: username, PasswordHash: passwordHash})
 	if lenlastuser >= len(userStorage.Users) {
-		return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("%s", "Не удалось добавить сообщение")
+		// return UserModel{}, fmt.Errorf("%s", "Не удалось добавить сообщение")
+		return UserModel{}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
 	return userStorage.Users[len(userStorage.Users)-1], nil
 }
@@ -50,7 +51,7 @@ func (userStorage *UserStorageMemory) GetByName(username string) (UserModel, err
 			return userStorage.Users[i], nil
 		}
 	}
-	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("не нашелся пользователь по указанному Username: %v", username)
+	return UserModel{}, fmt.Errorf("не нашелся пользователь по указанному Username: %v", username)
 }
 
 func (userStorage *UserStorageMemory) GetById(id uint) (UserModel, error) {
@@ -59,7 +60,7 @@ func (userStorage *UserStorageMemory) GetById(id uint) (UserModel, error) {
 			return userStorage.Users[i], nil
 		}
 	}
-	return UserModel{ID: 0, Username: "", PasswordHash: ""}, fmt.Errorf("пользователь с указанным id:%v не нашелся ", id)
+	return UserModel{}, fmt.Errorf("пользователь с указанным id:%v не нашелся ", id)
 }
 
 func (userStorage *UserStorageMemory) GetByIds(ids []uint) ([]UserModel, error) {
