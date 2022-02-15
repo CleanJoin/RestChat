@@ -17,9 +17,7 @@ import (
 
 // @host      localhost:8000
 // @BasePath  /
-
 func main() {
-
 	serverPort, _ := strconv.Atoi(os.Getenv("SERVER_PORT"))
 	maxMessagesNum, _ := strconv.Atoi(os.Getenv("SERVER_MAX_MESSAGES"))
 
@@ -32,5 +30,4 @@ func main() {
 	messageStorage := restchat.NewMessageStorageMemory()
 	chatServerGin.Use(sessionStorage, usersStorage, messageStorage)
 	chatServerGin.Run()
-
 }
