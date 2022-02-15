@@ -18,10 +18,10 @@ import (
 func main() {
 
 	chatServerGin := restchat.NewChatServerGin("localhost", 8080, 300)
-	sessionStorage1 := restchat.NewSessionStorageMemory(new(restchat.TokenGeneratorUUID))
-	usersstorage := restchat.NewUserStorageMemory(new(restchat.PasswordHasherSha1))
+	sessionStorage := restchat.NewSessionStorageMemory(new(restchat.TokenGeneratorUUID))
+	usersStorage := restchat.NewUserStorageMemory(new(restchat.PasswordHasherSha1))
 	messageStorage := restchat.NewMessageStorageMemory()
-	chatServerGin.Use(sessionStorage1, usersstorage, messageStorage)
+	chatServerGin.Use(sessionStorage, usersStorage, messageStorage)
 	chatServerGin.Run()
 
 }
