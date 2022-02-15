@@ -94,7 +94,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestIMessageStorage(t *testing.T) {
-	inter := NewMessageStorageMemory()
+	var inter IMessageStorage = NewMessageStorageMemory()
 	_, err := inter.Create(1, "text")
 	if err != nil {
 		t.Errorf("Сообщение не создалось%v", err)

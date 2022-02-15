@@ -7,7 +7,7 @@ import (
 )
 
 func TestIUserStorage(t *testing.T) {
-	inter := NewUserStorageMemory(new(PasswordHasherSha1))
+	var inter IUserStorage = NewUserStorageMemory(new(PasswordHasherSha1))
 
 	user, err := inter.Create("Андрей", "Андрей")
 	if err != nil {
