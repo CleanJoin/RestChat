@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"restchat-server/restchat"
+	"strconv"
 )
 
 // @title           Swagger RestChat
@@ -17,7 +20,13 @@ import (
 
 func main() {
 
-	chatServerGin := restchat.NewChatServerGin("localhost", 8080, 300)
+	serverPort, _ := strconv.Atoi(os.Getenv("SERVER_PORT"))
+	maxMessagesNum, _ := strconv.Atoi(os.Getenv("SERVER_MAX_MESSAGES"))
+
+	fmt.Println("Server port env:", serverPort)
+	fmt.Println("Max messages num env:", maxMessagesNum)
+
+	chatServerGin := restchat.NewChatServerGin("localhost", serverPort, uint(maxMessagesNum))
 	sessionStorage := restchat.NewSessionStorageMemory(new(restchat.TokenGeneratorUUID))
 	usersStorage := restchat.NewUserStorageMemory(new(restchat.PasswordHasherSha1))
 	messageStorage := restchat.NewMessageStorageMemory()
