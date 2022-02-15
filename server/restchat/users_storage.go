@@ -8,6 +8,7 @@ import (
 type UserStorageMemory struct {
 	Users          []UserModel
 	passwordHasher IPasswordHasher
+	nextId uint
 }
 
 type IUserStorage interface {
@@ -20,28 +21,18 @@ type IUserStorage interface {
 func NewUserStorageMemory(passwordHasher IPasswordHasher) *UserStorageMemory {
 	ssm := new(UserStorageMemory)
 	ssm.passwordHasher = passwordHasher
+	ssm.nextId = 0
 	return ssm
-}
-func getLastUserId(userStorage *UserStorageMemory) uint {
-	if userStorage == nil || len(userStorage.Users) == 0 {
-		return 0
-	}
-	sort.Slice(userStorage.Users, func(i, j int) (less bool) {
-		return userStorage.Users[i].ID > userStorage.Users[j].ID
-	})
-	return userStorage.Users[0].ID
 }
 
 func (userStorage *UserStorageMemory) Create(username string, password string) (UserModel, error) {
-	id := getLastUserId(userStorage)
-	id++
 	lenlastuser := len(userStorage.Users)
 	passwordHash := userStorage.passwordHasher.CalculateHash(password)
-	userStorage.Users = append(userStorage.Users, UserModel{ID: id, Username: username, PasswordHash: passwordHash})
+	userStorage.Users = append(userStorage.Users, UserModel{ID: userStorage.nextId, Username: username, PasswordHash: passwordHash})
 	if lenlastuser >= len(userStorage.Users) {
-		// return UserModel{}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 		return UserModel{}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
+	userStorage.nextId++
 	return userStorage.Users[len(userStorage.Users)-1], nil
 }
 
