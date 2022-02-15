@@ -86,7 +86,7 @@ func (sessionStorage *SessionStorageMemory) Create(userId uint) (SessionModel, e
 	authToken := sessionStorage.tokenGenerator.Create()
 	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: sessionId, UserId: userId, AuthToken: authToken})
 	if lenCurrentMessages >= len(sessionStorage.Sessions) {
-		return SessionModel{ID: 0, UserId: 0, AuthToken: ""}, fmt.Errorf("не удалось добавить сообщение")
+		return SessionModel{}, fmt.Errorf("не удалось добавить сообщение")
 	}
 	return sessionStorage.Sessions[len(sessionStorage.Sessions)-1], nil
 }

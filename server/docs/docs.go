@@ -158,7 +158,7 @@ const docTemplate_swagger = `{
         },
         "/api/user": {
             "post": {
-                "description": "Регистарция пользователя",
+                "description": "Регистрация пользователя",
                 "produces": [
                     "application/json"
                 ],

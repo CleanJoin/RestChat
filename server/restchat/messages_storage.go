@@ -8,6 +8,7 @@ import (
 
 type MessageStorageMemory struct {
 	Messages []MessageModel
+	nextId   uint
 }
 
 type IMessageStorage interface {
@@ -16,7 +17,9 @@ type IMessageStorage interface {
 }
 
 func NewMessageStorageMemory() *MessageStorageMemory {
-	return new(MessageStorageMemory)
+	msm := new(MessageStorageMemory)
+	msm.nextId = 0
+	return msm
 }
 
 func getLastMessageId(messageStorage *MessageStorageMemory) uint {
@@ -34,12 +37,12 @@ func (messageStorage *MessageStorageMemory) Create(userId uint, text string) (Me
 	id := getLastMessageId(messageStorage)
 	id++
 	lenlastmessages := len(messageStorage.Messages)
-	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: id, UserId: userId, Text: text, Time: time.Now()})
+	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: messageStorage.nextId, UserId: userId, Text: text, Time: time.Now()})
 
 	if lenlastmessages >= len(messageStorage.Messages) {
-		return MessageModel{ID: 0, UserId: 0, Text: "", Time: time.Time{}}, fmt.Errorf("%s", "Не удалось добавить сообщение")
+		return MessageModel{}, fmt.Errorf("%s", "Не удалось добавить сообщение")
 	}
-
+	messageStorage.nextId++
 	return messageStorage.Messages[len(messageStorage.Messages)-1], nil
 }
 
