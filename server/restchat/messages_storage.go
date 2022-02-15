@@ -23,7 +23,7 @@ func getLastMessageId(messageStorage *MessageStorageMemory) uint {
 	if messageStorage == nil || len(messageStorage.Messages) == 0 {
 		return 0
 	}
-	sort.Slice(messageStorage.Messages, func(i, j int) (less bool) {
+	sort.Slice(messageStorage.Messages, func(i, j int) bool {
 		return messageStorage.Messages[i].ID > messageStorage.Messages[j].ID
 	})
 	return messageStorage.Messages[0].ID
@@ -48,13 +48,14 @@ func (messageStorage *MessageStorageMemory) GetLast(n uint) ([]MessageModel, err
 	if messageStorage == nil || len(messageStorage.Messages) == 0 {
 		return messageStorage.Messages, fmt.Errorf("%s", "В памяти нет сообщений")
 	}
-	sort.Slice(messageStorage.Messages, func(i, j int) (less bool) {
+	sort.Slice(messageStorage.Messages, func(i, j int) bool {
 		return messageStorage.Messages[i].ID > messageStorage.Messages[j].ID
 	})
 	numMessages := minUint(len(messageStorage.Messages), n)
 	copylastmessages := messageStorage.Messages[0:uint(numMessages)]
 	return copylastmessages, nil
 }
+
 func minUint(len int, maxMessages uint) (min uint) {
 	if uint(len) >= maxMessages {
 		return maxMessages
