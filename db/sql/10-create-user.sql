@@ -1,34 +1,34 @@
-CREATE SCHEMA "UserModel" AUTHORIZATION "restchat";
+CREATE SCHEMA "restchat" AUTHORIZATION "restchat";
 
-CREATE TABLE "UserModel".messages (
+CREATE TABLE "restchat".messages (
 	id integer NOT NULL,
 	"text" varchar NOT NULL,
 	user_id integer NOT NULL,
 	"time" timestamptz NOT NULL
 );
 
-CREATE UNIQUE INDEX messages_user_id_idx ON "UserModel".messages USING btree (user_id);
+CREATE UNIQUE INDEX messages_user_id_idx ON "restchat".messages USING btree (user_id);
 
-ALTER TABLE "UserModel".messages OWNER TO "restchat";
+ALTER TABLE "restchat".messages OWNER TO "restchat";
 
-GRANT ALL ON TABLE "UserModel".messages TO "restchat";
+GRANT ALL ON TABLE "restchat".messages TO "restchat";
 
-CREATE TABLE "UserModel".users (
+CREATE TABLE "reschat".users (
 	id integer NOT NULL,
 	username varchar NOT NULL,
 	passwordhash varchar NOT NULL
 );
 
-CREATE INDEX users_id_idx ON "UserModel".users USING btree (id);
+CREATE INDEX users_id_idx ON "restchat".users USING btree (id);
 
-ALTER TABLE "UserModel".users OWNER TO "restchat";
+ALTER TABLE "restchat".users OWNER TO "restchat";
 
-GRANT ALL ON TABLE "UserModel".users TO "restchat";
+GRANT ALL ON TABLE "restchat".users TO "restchat";
 
-GRANT ALL ON SCHEMA "UserModel" TO "restchat";
+GRANT ALL ON SCHEMA "restchat" TO "restchat";
 
-INSERT INTO "UserModel".users (username,passwordhash,id) VALUES
+INSERT INTO "restchat".users (username,passwordhash,id) VALUES
 	 ('Andrey','ertdfghjuehjuik345535',1);
 
-INSERT INTO "UserModel".messages (id,"text",user_id,"time") VALUES
+INSERT INTO "restchat".messages (id,"text",user_id,"time") VALUES
 	 (1,'Привет всем',1,'2022-12-02 15:57:00+03');
