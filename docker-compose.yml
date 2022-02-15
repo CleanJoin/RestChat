@@ -27,7 +27,7 @@ services:
   functional_tests:
     build: functional_tests
     volumes:
-    - ./functional_tests/cypress/:/usr/src/functional_tests/cypress/
+      - ./functional_tests/cypress/:/usr/src/functional_tests/cypress/
     depends_on:
       - restchat_client
       - restchat_server
@@ -43,7 +43,4 @@ services:
     ports:
       - 6000:5432
     volumes:
-        - ./docs/init.sql:/docker-entrypoint-initdb.d/10-init.sql
-        
-   
-  
+        - ./db/docs/init.sql:/docker-entrypoint-initdb.d/10-init.sql
