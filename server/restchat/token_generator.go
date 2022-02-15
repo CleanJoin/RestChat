@@ -1,8 +1,6 @@
 package restchat
 
 import (
-	"strings"
-
 	"github.com/google/uuid"
 )
 
@@ -13,7 +11,5 @@ type ITokenGenerator interface {
 }
 
 func (*TokenGeneratorUUID) Create() string {
-	uuidWithHyphen := uuid.New()
-	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
-	return uuid
+	return uuid.New().String()
 }
