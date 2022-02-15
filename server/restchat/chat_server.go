@@ -185,7 +185,7 @@ func logoutHandler(sessionStorage ISessionStorage) gin.HandlerFunc {
 // userHandler godoc
 // @tags Auth
 // @Summary userHandler
-// @Description Регистарция пользователя
+// @Description Регистрация пользователя
 // @Produce json
 // @Param user body RequestUser true "User Data"
 // @Router /api/user [post]
