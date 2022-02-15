@@ -21,28 +21,31 @@ func TestMinUint(t *testing.T) {
 	}
 }
 
-func TestGetLastMessageIdEmpty(t *testing.T) {
-	messageStorage := new(MessageStorageMemory)
-	if getLastMessageId(messageStorage) != 0 {
-		t.Errorf("Есть идентификатор сообщения: %v\n", getLastMessageId(messageStorage))
-	}
-}
+// func TestGetLastMessageIdEmpty(t *testing.T) {
+// 	messageStorage := new(MessageStorageMemory)
+// 	if getLastMessageId(messageStorage) != 0 {
+// 		t.Errorf("Есть идентификатор сообщения: %v\n", getLastMessageId(messageStorage))
+// 	}
+// }
 
-func TestGetLastMessageId(t *testing.T) {
-	messageStorage := new(MessageStorageMemory)
-	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 4, UserId: 1, Text: "Первое сообщение чата", Time: time.Now()})
-	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 2, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
-	if getLastMessageId(messageStorage) != 4 {
-		t.Errorf("Не верное выводиться идентификатор последнего сообщения%v\n", getLastMessageId(messageStorage))
-	}
-}
+// func TestGetLastMessageId(t *testing.T) {
+// 	messageStorage := new(MessageStorageMemory)
+// 	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 4, UserId: 1, Text: "Первое сообщение чата", Time: time.Now()})
+// 	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 2, UserId: 3, Text: "Второе сообщение чата", Time: time.Now()})
+// 	if getLastMessageId(messageStorage) != 4 {
+// 		t.Errorf("Не верное выводиться идентификатор последнего сообщения%v\n", getLastMessageId(messageStorage))
+// 	}
+// }
 
 func TestCreateMessage(t *testing.T) {
 	messageStorage := new(MessageStorageMemory)
 	newTime := time.Now()
+	messageStorage.Create(1, "Нулевое сообщение чата")
+	messageStorage.Create(1, "Первое сообщение чата")
+	messageStorage.Create(3, "Второе сообщение чата")
+	messageStorage.Create(1, "Третье сообщение чата")
+	messageStorage.Create(1, "Четвертое сообщение чата")
 
-	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 1, UserId: 1, Text: "Первое сообщение чата", Time: newTime})
-	messageStorage.Messages = append(messageStorage.Messages, MessageModel{ID: 4, UserId: 3, Text: "Второе сообщение чата", Time: newTime})
 	user_id := uint(1)
 	text := "Первое сообщение"
 	outmessage := new(MessageStorageMemory)
@@ -94,6 +97,7 @@ func TestGetLast(t *testing.T) {
 }
 
 func TestIMessageStorage(t *testing.T) {
+
 	var inter IMessageStorage = NewMessageStorageMemory()
 	_, err := inter.Create(1, "text")
 	if err != nil {

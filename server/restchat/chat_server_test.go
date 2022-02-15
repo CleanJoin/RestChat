@@ -39,7 +39,7 @@ func TestMessageHandler(t *testing.T) {
 	chatServer := NewChatServerGin("localhost", 8080, 300)
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 	usersstorage.Create("Andrey", "fghfghfghfgh")
-	sessionStorage.Create(1)
+	sessionStorage.Create(0)
 
 	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": "string"}
 	jsonValue, _ := json.Marshal(values)
@@ -186,8 +186,8 @@ func TestMembersHandler(t *testing.T) {
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
+	sessionStorage.Create(0)
 	sessionStorage.Create(1)
-	sessionStorage.Create(2)
 	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
@@ -195,7 +195,7 @@ func TestMembersHandler(t *testing.T) {
 
 	chatServer.router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-	outMembers := "{\n    \"members\": [\n        {\n            \"id\": 1,\n            \"name\": \"Andrey\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Andrey2\"\n        }\n    ]\n}"
+	outMembers := "{\n    \"members\": [\n        {\n            \"id\": 0,\n            \"name\": \"Andrey\"\n        },\n        {\n            \"id\": 1,\n            \"name\": \"Andrey2\"\n        }\n    ]\n}"
 	assert.Equal(t, outMembers, w.Body.String())
 }
 

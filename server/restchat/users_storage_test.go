@@ -68,7 +68,7 @@ func TestGetById(t *testing.T) {
 }
 func TestGetByIds(t *testing.T) {
 	userStorage := NewUserStorageMemory(new(PasswordHasherSha1))
-	for i := 1; i < 10; i++ {
+	for i := 0; i < 10; i++ {
 		userStorage.Create("Андрей"+strconv.Itoa(i), "Андрей"+strconv.Itoa(i))
 	}
 	ids := []uint{2, 3, 6, 7}

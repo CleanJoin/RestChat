@@ -9,9 +9,9 @@ import (
 func TestGetUserId(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 
-	var inter ISessionStorage = NewSessionStorageMemory(new(TokenGeneratorUUID))
+	var inter ISessionStorage = sessionStorage
 
-	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 1, UserId: 2, AuthToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 0, UserId: 2, AuthToken: "a396776f58b942fb9b10ebc798ab6303"})
 
 	request, err := inter.GetUserId(sessionStorage.Sessions[0].AuthToken)
 	if request != 2 {
@@ -107,7 +107,9 @@ func TestCreateSession(t *testing.T) {
 
 }
 func TestISessionStorage(t *testing.T) {
-	inter := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+
+	var inter ISessionStorage = sessionStorage
 
 	session, err := inter.Create(1)
 	if err != nil {
