@@ -15,7 +15,7 @@ services:
     ports:
       - 8000:3000
     volumes:
-      - ./server/restchat-server/:/usr/src/restchat-server
+      - ./restchat-server/:/usr/src/restchat-server
     env_file:
       - .env
 
