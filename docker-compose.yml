@@ -16,6 +16,8 @@ services:
       - 8000:3000
     volumes:
       - ./server/restchat-server/:/usr/src/restchat-server
+    env_file:
+      - .env
 
   proxy:
     image: nginx:latest
@@ -36,11 +38,9 @@ services:
 
   db:
     image: postgres:latest
-    environment:
-      POSTGRES_DB: "restchat"
-      POSTGRES_USER: "restchat"
-      POSTGRES_PASSWORD: "qweasd123"
     ports:
       - 6000:5432
     volumes:
         - ./db/sql/:/docker-entrypoint-initdb.d/
+    env_file:
+      - .env
