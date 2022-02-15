@@ -1,17 +1,16 @@
-package postgresDB
+package restchat
 
 import (
 	"context"
 	"fmt"
 	"os"
-	"restchat-server/restchat"
 
 	"github.com/jackc/pgx/v4"
 )
 
 type UserStorageDB struct {
-	Users          []restchat.UserModel
-	passwordHasher restchat.IPasswordHasher
+	Users          []UserModel
+	passwordHasher IPasswordHasher
 	connect        *pgx.Conn
 }
 
@@ -21,14 +20,14 @@ func NewUserStorageDB() *UserStorageDB {
 	return msdb
 }
 
-type IUserStorage interface {
-	CreateUser(username string, password string) (restchat.UserModel, error)
-	GetByName(name string) (restchat.UserModel, error)
-	GetById(id uint) (restchat.UserModel, error)
-	GetByIds(ids []uint) ([]restchat.UserModel, error)
+type IUserStorageDB interface {
+	CreateUser(username string, password string) (UserModel, error)
+	GetByName(name string) (UserModel, error)
+	GetById(id uint) (UserModel, error)
+	GetByIds(ids []uint) ([]UserModel, error)
 }
 
-func (userStorageDB *UserStorageDB) CreateUser(username string, password string) (restchat.UserModel, error) {
+func (userStorageDB *UserStorageDB) CreateUser(username string, password string) (UserModel, error) {
 	var text string
 	var userId int
 	query := `select text,user_id from "UserModel".messages u where id=$1`
@@ -39,5 +38,5 @@ func (userStorageDB *UserStorageDB) CreateUser(username string, password string)
 	}
 	defer userStorageDB.connect.Close(context.Background())
 	fmt.Println(text, userId)
-	return restchat.UserModel{ID: 1, Username: "username", PasswordHash: "password"}, fmt.Errorf(text, userId)
+	return UserModel{ID: 1, Username: "username", PasswordHash: "password"}, fmt.Errorf(text, userId)
 }

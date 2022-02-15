@@ -2,13 +2,12 @@ package restchat
 
 import (
 	"fmt"
-	"sort"
 )
 
 type UserStorageMemory struct {
 	Users          []UserModel
 	passwordHasher IPasswordHasher
-	nextId uint
+	nextId         uint
 }
 
 type IUserStorage interface {
