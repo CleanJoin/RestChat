@@ -1,10 +1,11 @@
-import { React, useEffect, useState, memo } from 'react';
+import { React, useState } from 'react';
+import { CssBaseline } from '@mui/material';
+
 import LoginForm from './Components/LoginForm';
 import Chat from './Components/Chat';
 
-
-import logo from './logo.svg';
 import './App.css';
+import '@fontsource/roboto/400.css';
 
 function App({ apiClient }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -12,22 +13,16 @@ function App({ apiClient }) {
 
   const loginHandler = (username, password) => {
     console.log("loginHandler called");
-    const [memberName, error] = apiClient.login(username, password);
-    console.log("username, error:", username, error);
-    if (error == null) {
-      setMemberName(memberName);
-      setIsAuthorized(true);
-    }
+    const memberName = apiClient.login(username, password);
+    console.log("Login successful with username:", username);
+    setMemberName(memberName);
+    setIsAuthorized(true);
   };
 
   const registerHandler = (username, password) => {
     console.log("registerHandler called");
-    const [memberName, error] = apiClient.register(username, password);
-    console.log("username, error:", username, error);
-
-    if (error == null) {
-      console.log("Registration successful with memberName:", memberName);
-    }
+    const memberName = apiClient.register(username, password);
+    console.log("Registration successful with memberName:", memberName);
   };
 
   const logoutHandler = () => {
@@ -52,10 +47,7 @@ function App({ apiClient }) {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-
-        <p>isAuthorized: {isAuthorized.toString()}</p>
+    <CssBaseline />
 
         {!isAuthorized &&
           <LoginForm
@@ -74,8 +66,6 @@ function App({ apiClient }) {
             getMessagesHandler={getMessagesHandler}
           />
         }
-
-      </header>
 
     </div>
   );
