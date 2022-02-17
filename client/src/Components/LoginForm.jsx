@@ -11,6 +11,11 @@ import { Box } from '@mui/system';
 import { useState } from 'react';
 
 
+const MAX_LOGIN_LENGTH = 15;
+const LOGIN_REGEX = /^([a-zA-Z0-9_]){1,}$/;
+const MAX_PASSWORD_LENGTH = 32;
+const PASSWORD_REGEX = /^([a-zA-Z0-9_]){1,}$/;
+
 const MESSAGE_ERROR = "error";
 const MESSAGE_SUCCESS = "success";
 
@@ -38,9 +43,31 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
     return [username, password]
   }
 
-  const handleLogin = async () => {
+  const sanitizeFormParams = () => {
     const [username, password] = getFormParams();
+
+    if (username.length < 1 || username.length > MAX_LOGIN_LENGTH) {
+      throw new Error(`Username length should be 1 to ${MAX_LOGIN_LENGTH} symbols.`);
+    }
+
+    if (password.length < 1 || password.length > MAX_PASSWORD_LENGTH) {
+      throw new Error(`Password length should be 1 to ${MAX_PASSWORD_LENGTH} symbols.`);
+    }
+
+    if(!LOGIN_REGEX.test(username)) {
+      throw new Error('Allowed username symbols is [a-zA-Z0-9_].');
+    }
+
+    if(!PASSWORD_REGEX.test(password)) {
+      throw new Error('Allowed password symbols is [a-zA-Z0-9_].');
+    }
+
+    return [username, password];
+  }
+
+  const handleLogin = async () => {
     try {
+      const [username, password] = sanitizeFormParams();
       const memberName = await apiClient.login(username, password);
       setIsAuthorized(true);
       setMemberName(memberName);
