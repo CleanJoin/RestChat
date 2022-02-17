@@ -62,7 +62,7 @@ docker compose up --build
 **Тесты бэкенда**:
 
 ```bash
-docker-compose run restchat_server go test restchat-server/restchat
+docker-compose run restchat_server go test restchat_server/restchat
 ```
 
 **Тесты фронтенда**:
