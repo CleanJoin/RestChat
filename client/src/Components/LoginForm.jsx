@@ -25,8 +25,6 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("Form has been submitted");
-    console.log(event);
   };
 
   const addMessage = (text, type) => {
