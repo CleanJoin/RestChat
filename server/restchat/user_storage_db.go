@@ -14,17 +14,17 @@ type UserStorageDB struct {
 	connect        *pgxpool.Pool
 }
 
-func NewUserStorageDB(passwordHasher IPasswordHasher) *UserStorageDB {
-	msdb := new(UserStorageDB)
-	msdb.connect = connectDB()
-	msdb.passwordHasher = passwordHasher
-	return msdb
+func NewUserStorageDB(passwordHasher IPasswordHasher, iConnectDB IConnectDB) *UserStorageDB {
+	udb := new(UserStorageDB)
+	udb.connect = iConnectDB.Use()
+	udb.passwordHasher = passwordHasher
+	return udb
 }
 
 func (userStorageDB *UserStorageDB) Create(username string, password string) (UserModel, error) {
 	var id uint
 	newPasswordHash := userStorageDB.passwordHasher.CalculateHash(password)
-	query := `INSERT INTO "UserModel".users (username,"password") VALUES($1, $2) RETURNING id;`
+	query := `INSERT INTO "restchat".users (username,"password") VALUES($1, $2) RETURNING id;`
 	row := userStorageDB.connect.QueryRow(context.Background(), query, username, newPasswordHash)
 	err := row.Scan(&id)
 	if err != nil {
@@ -35,7 +35,7 @@ func (userStorageDB *UserStorageDB) Create(username string, password string) (Us
 
 func (userStorageDB *UserStorageDB) GetByName(name string) (UserModel, error) {
 	userModel := new(UserModel)
-	query := `select * from "UserModel".users u where username=$1`
+	query := `select * from "restchat".users u where username=$1`
 	commandTag := userStorageDB.connect.QueryRow(context.Background(), query, name)
 	err := commandTag.Scan(&userModel.ID, &userModel.Username, &userModel.PasswordHash)
 	if err != nil {
@@ -46,7 +46,7 @@ func (userStorageDB *UserStorageDB) GetByName(name string) (UserModel, error) {
 
 func (userStorageDB *UserStorageDB) GetById(id uint) (UserModel, error) {
 	userModel := new(UserModel)
-	query := `select * from "UserModel".users u where id=$1`
+	query := `select * from "restchat".users u where id=$1`
 	commandTag := userStorageDB.connect.QueryRow(context.Background(), query, id)
 	err := commandTag.Scan(&userModel.ID, &userModel.Username, &userModel.PasswordHash)
 	if err != nil {
@@ -58,7 +58,7 @@ func (userStorageDB *UserStorageDB) GetById(id uint) (UserModel, error) {
 
 func (userStorageDB *UserStorageDB) GetByIds(ids []uint) ([]UserModel, error) {
 	userModel := new(UserModel)
-	query := `select * from "UserModel".users u where id = ANY($1)`
+	query := `select * from "restchat".users u where id = ANY($1)`
 	commandTag, err := userStorageDB.connect.Query(context.Background(), query, pq.Array(ids))
 	if err != nil {
 		return userStorageDB.Users, fmt.Errorf(err.Error())

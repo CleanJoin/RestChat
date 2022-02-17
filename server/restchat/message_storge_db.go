@@ -13,15 +13,16 @@ type MessageStorageDB struct {
 	connect  *pgxpool.Pool
 }
 
-func NewMessageStorageDB() *MessageStorageDB {
-	msdb := new(MessageStorageDB)
-	msdb.connect = connectDB()
-	return msdb
+func NewMessageStorageDB(iConnectDB IConnectDB) *MessageStorageDB {
+
+	sdb := new(MessageStorageDB)
+	sdb.connect = iConnectDB.Use()
+	return sdb
 }
 
 func (messageStorageDB *MessageStorageDB) Create(userId uint, text string) (MessageModel, error) {
 	var id uint
-	query := `INSERT INTO "UserModel".messages (userid,"text") VALUES($1, $2) RETURNING id;`
+	query := `INSERT INTO "restchat".messages (userid,"text") VALUES($1, $2) RETURNING id;`
 	row := messageStorageDB.connect.QueryRow(context.Background(), query, userId, text)
 	err := row.Scan(&id)
 	if err != nil {
@@ -32,7 +33,7 @@ func (messageStorageDB *MessageStorageDB) Create(userId uint, text string) (Mess
 
 func (messageStorageDB *MessageStorageDB) GetLast(n uint) ([]MessageModel, error) {
 	messageModel := new(MessageModel)
-	query := `select * from "UserModel".messages u order by id desc  limit $1`
+	query := `select * from "restchat".messages u order by id desc  limit $1`
 	commandTag, err := messageStorageDB.connect.Query(context.Background(), query, n)
 	if err != nil {
 		return []MessageModel{}, fmt.Errorf(err.Error())
