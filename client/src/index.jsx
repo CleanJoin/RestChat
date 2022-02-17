@@ -10,8 +10,6 @@ import { MockApiServer } from './MockApi/api';
 import mockDbFabric from './MockApi/db';
 import mockHandlersFabric from './MockApi/handlers';
 
-import { setupWorker, rest } from 'msw';
-
 import './index.css';
 
 // TODO: start mockApiServer only if in debug environment
