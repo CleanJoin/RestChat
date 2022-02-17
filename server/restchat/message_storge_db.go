@@ -20,20 +20,30 @@ func NewMessageStorageDB() *MessageStorageDB {
 }
 
 func (messageStorageDB *MessageStorageDB) Create(userId uint, text string) (MessageModel, error) {
-	query := `INSERT INTO "UserModel".messages (text,user_id) VALUES($1, $2)`
-
-	commandTag, err := messageStorageDB.connect.Exec(context.Background(), query, text, userId)
+	var id uint
+	query := `INSERT INTO "UserModel".messages (userid,"text") VALUES($1, $2) RETURNING id;`
+	row := messageStorageDB.connect.QueryRow(context.Background(), query, userId, text)
+	err := row.Scan(&id)
 	if err != nil {
-		return MessageModel{}, fmt.Errorf("не удалось добавить сообщение %s", err.Error())
+		return MessageModel{}, fmt.Errorf(err.Error())
 	}
-	commandTag.Insert()
-	fmt.Println(commandTag.String())
-	return MessageModel{1, userId, text, time.Now()}, nil
+	return MessageModel{id, userId, text, time.Now()}, nil
 }
 
 func (messageStorageDB *MessageStorageDB) GetLast(n uint) ([]MessageModel, error) {
+	messageModel := new(MessageModel)
 	query := `select * from "UserModel".messages u order by id desc  limit $1`
-	commandTag := messageStorageDB.connect.QueryRow(context.Background(), query, n)
-	commandTag.Scan(messageStorageDB.Messages)
+	commandTag, err := messageStorageDB.connect.Query(context.Background(), query, n)
+	if err != nil {
+		return []MessageModel{}, fmt.Errorf(err.Error())
+	}
+	for commandTag.Next() {
+		err := commandTag.Scan(&messageModel.ID, &messageModel.UserId, &messageModel.Text, &messageModel.Time)
+		messageStorageDB.Messages = append(messageStorageDB.Messages, MessageModel{messageModel.ID, messageModel.UserId, messageModel.Text, messageModel.Time})
+		if err != nil {
+			return []MessageModel{}, fmt.Errorf(err.Error())
+		}
+	}
+
 	return messageStorageDB.Messages, nil
 }
