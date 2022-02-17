@@ -1,4 +1,4 @@
-module restchat
+module restchat_server
 
 go 1.13
 

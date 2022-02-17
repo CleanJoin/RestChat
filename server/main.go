@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"restchat/restchat"
+	"restchat_server/restchat"
 	"strconv"
 )
 
