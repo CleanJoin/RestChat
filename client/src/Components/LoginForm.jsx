@@ -1,9 +1,6 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
-import Paper from '@mui/material/Paper';
-
 import Fingerprint from '@mui/icons-material/Fingerprint';
 import AppRegistration from '@mui/icons-material/AppRegistration';
 
@@ -11,21 +8,56 @@ import logo from '../Images/RestChat_logo.png';
 
 import { Container, TextField } from '@mui/material';
 import { Box } from '@mui/system';
+import { useState } from 'react';
 
 
-function LoginForm({ loginHandler, registerHandler }) {
+const MESSAGE_ERROR = "error";
+const MESSAGE_SUCCESS = "success";
 
-  const handleSubmit = () => {
-    console.log("Form has been submited");
+function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
+
+  const [messages, setMessages] = useState([]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("Form has been submitted");
+    console.log(event);
   };
 
-  const handleLogin = () => {
-    console.log("Login button clicked");
-  };
+  const addMessage = (text, type) => {
+    setMessages([...messages, { text: text, type: type }]);
+  }
 
-  const handleRegister = () => {
-    console.log("Register button clicked");
-  };
+  const deleteMessage = (index) => {
+    setMessages([...messages.filter((x, i) => i !== index)]);
+  }
+
+  const getFormParams = () => {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    return [username, password]
+  }
+
+  const handleLogin = async () => {
+    const [username, password] = getFormParams();
+    try {
+      const memberName = await apiClient.login(username, password);
+      setIsAuthorized(true);
+      setMemberName(memberName);
+    } catch (exception) {
+      addMessage(exception.message, MESSAGE_ERROR);
+    }
+  }
+
+  const handleRegister = async () => {
+    const [username, password] = getFormParams();
+    try {
+      const memberName = await apiClient.register(username, password);
+      addMessage(`Successfully registered user ${memberName}. Login to proceed.`, MESSAGE_SUCCESS);
+    } catch (exception) {
+      addMessage(exception.message, MESSAGE_ERROR);
+    }
+  }
 
   return (
     <Container
@@ -58,7 +90,6 @@ function LoginForm({ loginHandler, registerHandler }) {
             id="username"
             name="username"
             label="Username"
-            autoFocus
           />
 
           <TextField
@@ -76,8 +107,8 @@ function LoginForm({ loginHandler, registerHandler }) {
               variant="contained"
               fullWidth
               size="large"
-              onClick={handleLogin}
               startIcon={<Fingerprint />}
+              onClick={async () => { handleLogin() }}
             >
               Login
             </Button>
@@ -89,18 +120,30 @@ function LoginForm({ loginHandler, registerHandler }) {
               fullWidth
               size="large"
               startIcon={<AppRegistration />}
-              onClick={handleRegister}
+              onClick={async () => { handleRegister() }}
             >
               Register
             </Button>
           </Stack>
 
-          { /*
-          <Alert severity="error" variant="filled">Error</Alert>
-          <Alert severity="error" variant="filled">Error</Alert>
-          <Alert severity="error" variant="filled">Error</Alert>
-          <Alert severity="error" variant="filled">Error</Alert>
-          */ }
+
+          <Stack direction="column-reverse" spacing={1}>
+
+            {
+              messages.map((msg, i) => {
+                return (
+                  <Alert
+                    severity={msg.type}
+                    key={i}
+                    onClose={() => deleteMessage(i)}
+                    >
+                    {msg.text}
+                  </Alert>
+                )
+              })
+            }
+
+          </Stack>
 
         </Stack>
 

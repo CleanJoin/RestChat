@@ -11,20 +11,6 @@ function App({ apiClient }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [memberName, setMemberName] = useState(null);
 
-  const loginHandler = (username, password) => {
-    console.log("loginHandler called");
-    const memberName = apiClient.login(username, password);
-    console.log("Login successful with username:", username);
-    setMemberName(memberName);
-    setIsAuthorized(true);
-  };
-
-  const registerHandler = (username, password) => {
-    console.log("registerHandler called");
-    const memberName = apiClient.register(username, password);
-    console.log("Registration successful with memberName:", memberName);
-  };
-
   const logoutHandler = () => {
     console.log("logoutHandler called");
     setIsAuthorized(false);
@@ -51,8 +37,9 @@ function App({ apiClient }) {
 
         {!isAuthorized &&
           <LoginForm
-            loginHandler={loginHandler}
-            registerHandler={registerHandler}
+            apiClient={apiClient}
+            setIsAuthorized={setIsAuthorized}
+            setMemberName={setMemberName}
           />
         }
 
