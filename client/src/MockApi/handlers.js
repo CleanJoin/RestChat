@@ -2,7 +2,15 @@ import { rest } from 'msw';
 import { StatusCodes } from 'http-status-codes';
 import { v4 as uuid } from 'uuid';
 
-const MAX_MESSAGES_NUMBER = 100;
+import {
+  MAX_LOGIN_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  MAX_MESSAGES_NUMBER,
+  MAX_MESSAGE_LENGTH,
+  LOGIN_REGEX,
+  PASSWORD_REGEX
+} from '../restrictions';
+
 
 function mockHandlersFabric(db) {
 
@@ -205,6 +213,15 @@ function mockHandlersFabric(db) {
                     ctx.status(StatusCodes.UNAUTHORIZED),
                     ctx.json({
                         error: "User session not found!"
+                    })
+                )
+            }
+
+            if (text.length > MAX_LOGIN_LENGTH) {
+                return res(
+                    ctx.status(StatusCodes.BAD_REQUEST),
+                    ctx.json({
+                        error: `Maximum message length allowed is ${MAX_MESSAGE_LENGTH}.`
                     })
                 )
             }
