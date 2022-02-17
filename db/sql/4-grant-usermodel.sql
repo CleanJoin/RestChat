@@ -1,2 +1,2 @@
 
-GRANT ALL ON SCHEMA "db" TO "restchat";
+GRANT ALL ON SCHEMA "restchat" TO "restchat";
