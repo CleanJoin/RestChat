@@ -1,2 +1,2 @@
 
-GRANT ALL ON SCHEMA "UserModel" TO "restChat";
+GRANT ALL ON SCHEMA "UserModel" TO "restchat";

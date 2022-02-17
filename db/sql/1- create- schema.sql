@@ -1,1 +1,1 @@
-CREATE SCHEMA "UserModel" AUTHORIZATION "restChat";
+CREATE SCHEMA "UserModel" AUTHORIZATION "restchat";

@@ -7,8 +7,8 @@ CREATE UNIQUE INDEX users_id_idx ON "UserModel".users USING btree (id);
 
 -- Permissions
 
-ALTER TABLE "UserModel".users OWNER TO "restChat";
-GRANT ALL ON TABLE "UserModel".users TO "restChat";
+ALTER TABLE "UserModel".users OWNER TO "restchat";
+GRANT ALL ON TABLE "UserModel".users TO "restchat";
 
 CREATE SEQUENCE "UserModel".users_id_seq
 	INCREMENT BY 1
@@ -20,5 +20,5 @@ CREATE SEQUENCE "UserModel".users_id_seq
 
 -- Permissions
 
-ALTER SEQUENCE "UserModel".users_id_seq OWNER TO "restChat";
-GRANT ALL ON SEQUENCE "UserModel".users_id_seq TO "restChat";
+ALTER SEQUENCE "UserModel".users_id_seq OWNER TO "restchat";
+GRANT ALL ON SEQUENCE "UserModel".users_id_seq TO "restchat";

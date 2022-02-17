@@ -8,8 +8,8 @@ CREATE UNIQUE INDEX messages_id_idx ON "UserModel".messages USING btree (id);
 
 -- Permissions
 
-ALTER TABLE "UserModel".messages OWNER TO "restChat";
-GRANT ALL ON TABLE "UserModel".messages TO "restChat";
+ALTER TABLE "UserModel".messages OWNER TO "restchat";
+GRANT ALL ON TABLE "UserModel".messages TO "restchat";
 
 CREATE SEQUENCE "UserModel".messages_id_seq
 	INCREMENT BY 1
@@ -21,5 +21,5 @@ CREATE SEQUENCE "UserModel".messages_id_seq
 
 -- Permissions
 
-ALTER SEQUENCE "UserModel".messages_id_seq OWNER TO "restChat";
-GRANT ALL ON SEQUENCE "UserModel".messages_id_seq TO "restChat";
+ALTER SEQUENCE "UserModel".messages_id_seq OWNER TO "restchat";
+GRANT ALL ON SEQUENCE "UserModel".messages_id_seq TO "restchat";
