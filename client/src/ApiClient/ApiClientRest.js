@@ -11,7 +11,7 @@ async function restRequest(method, url, payload) {
         }
     );
 
-    const data = response.json();
+    const data = await response.json();
 
     if (!response.ok) {
         if (data.hasOwnProperty('error')) {
