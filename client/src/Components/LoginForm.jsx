@@ -12,9 +12,9 @@ import { useState } from 'react';
 
 
 const MAX_LOGIN_LENGTH = 15;
-const LOGIN_REGEX = /^([a-zA-Z0-9_]){1,}$/;
+const LOGIN_REGEX = /^([a-zA-Z0-9_-]){1,}$/;
 const MAX_PASSWORD_LENGTH = 32;
-const PASSWORD_REGEX = /^([a-zA-Z0-9_]){1,}$/;
+const PASSWORD_REGEX = /^([a-zA-Z0-9_-]){1,}$/;
 
 const MESSAGE_ERROR = "error";
 const MESSAGE_SUCCESS = "success";
