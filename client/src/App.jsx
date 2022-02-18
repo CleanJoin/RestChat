@@ -27,6 +27,7 @@ function App({ apiClient }) {
         {isAuthorized &&
           <Chat
             apiClient={apiClient}
+            isAuthorized={isAuthorized}
             memberName={memberName}
             setIsAuthorized={setIsAuthorized}
             setMemberName={setMemberName}

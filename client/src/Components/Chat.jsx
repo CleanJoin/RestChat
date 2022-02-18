@@ -8,6 +8,7 @@ import MemberList from "./MemberList";
 
 function Chat({
   apiClient,
+  isAuthorized,
   memberName,
   setIsAuthorized,
   setMemberName
@@ -17,39 +18,53 @@ function Chat({
   const [messages, setMessages] = useState([]);
   const [autoUpdateIntervalId, setAutoUpdateIntervalId] = useState(null);
 
-  // TODO: Handle exceptions
-  const updateMembers = useCallback(() => {
-    console.log("Updating members");
-    apiClient.getMembers().then(newMembers => {
+  // TODO: Implement errors visualization
+  const onError = useCallback((error) => {
+    console.error(error);
+  }, []);
+
+  const updateMembers = useCallback(async () => {
+    try {
+      const newMembers = await apiClient.getMembers();
       console.log("getMembers resolved, newMembers:", newMembers);
-      if (newMembers !== null && newMembers.length > 0) {
-        setMembers(newMembers);
-      }
-    });
-  }, [apiClient]);
+      setMembers(newMembers);
+    } catch (exception) {
+      onError(`getMembers failed with error: ${exception.message}`);
+    }
+  }, [apiClient, onError]);
 
-  // TODO: Handle exceptions
-  const updateMessages = useCallback(() => {
-    console.log("Updating messages");
-    apiClient.getMessages().then(newMessages => {
+  const updateMessages = useCallback(async () => {
+    try {
+      const newMessages = await apiClient.getMessages();
       console.log("getMessages resolved, newMessages", newMessages);
-      if (newMessages !== null && newMessages.length > 0) {
-        setMessages(newMessages);
-      }
-    });
-  }, [apiClient]);
+      setMessages(newMessages);
+    } catch (exception) {
+      onError(`getMessages failed with error: ${exception.message}`);
+    }
+  }, [apiClient, onError]);
 
-  // TODO: Handle exceptions
-  const onLogout = useCallback(() => {
-    apiClient.logout().then(() => {
-      if (autoUpdateIntervalId != null) {
+  const onLogout = useCallback(async () => {
+    try {
+      await apiClient.logout();
+      console.log("Successfully logout from chat");
+    } catch (exception) {
+      onError(`Failed to logout from chat with error: ${exception.message}`);
+    } finally {
+      if (autoUpdateIntervalId !== null) {
         clearInterval(autoUpdateIntervalId);
+        setAutoUpdateIntervalId(null);
       }
-      setAutoUpdateIntervalId(null);
       setIsAuthorized(false);
       setMemberName(null);
-    });
-  }, [apiClient, setAutoUpdateIntervalId, setIsAuthorized, setMemberName]);
+    }
+  }, [
+    apiClient,
+    autoUpdateIntervalId,
+    setAutoUpdateIntervalId,
+    setIsAuthorized,
+    setMemberName,
+    onError
+  ]);
 
   const startAutoFetch = useCallback(() => {
     const fetchData = () => {
@@ -57,17 +72,19 @@ function Chat({
       updateMessages();
     };
 
-    if (autoUpdateIntervalId === null) {
+    if (autoUpdateIntervalId === null && isAuthorized) {
       fetchData();
       const intervalId = setInterval(fetchData, AUTO_UPDATE_INTERVAL_SEC * 1000);
       setAutoUpdateIntervalId(intervalId);
       console.log("Started auto data fetch loop");
     }
-  }, [autoUpdateIntervalId, updateIntervalSec, updateMembers, updateMessages]);
+  }, [autoUpdateIntervalId, updateMembers, updateMessages, isAuthorized]);
 
   useEffect(() => {
-    startAutoFetch();
-  }, [startAutoFetch]);
+    if (isAuthorized) {
+      startAutoFetch();
+    }
+  }, [startAutoFetch, isAuthorized]);
 
   return (
     <div>
