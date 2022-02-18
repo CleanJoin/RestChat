@@ -90,7 +90,7 @@ describe('ApiClientRest login', () => {
 describe('ApiClientRest new user registration', () => {
 
     test('creating unique new user should succeed', async () => {
-        const newUserName = 'User-test-register';
+        const newUserName = 'User-test-reg';
         const newPassword = 'p-word';
 
         const registeredUserName = await client.register(newUserName, newPassword);
@@ -98,7 +98,7 @@ describe('ApiClientRest new user registration', () => {
     });
 
     test('login with new created user should succeed', async () => {
-        const newUserName = 'User-test-register-login';
+        const newUserName = 'User-reg-login';
         const newPassword = 'password12345';
 
         expect(client.isAuthorized()).toEqual(false);
@@ -157,7 +157,6 @@ describe('ApiClientRest get members list', () => {
     });
 
     test('user logout should decrease online users count', async () => {
-
         await client.login('User-4', 'User-4_password');
         expect(client.isAuthorized()).toEqual(true);
 
