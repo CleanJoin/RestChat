@@ -1,32 +1,6 @@
 import { factory, oneOf, primaryKey } from "@mswjs/data";
 
-function* idGenerator() {
-    let id = 1;
-    for (; ;) {
-        yield id++;
-    }
-}
-
-function mockDbFabric() {
-    const usersPk = idGenerator();
-    const messagesPk = idGenerator();
-
-    const db = factory({
-        user: {
-            id: primaryKey(() => usersPk.next().value),
-            username: String,
-            password: String,
-            online: Boolean,
-            apiToken: String,
-        },
-        message: {
-            id: primaryKey(() => messagesPk.next().value),
-            user: oneOf('user'),
-            text: String,
-            time: Date,
-        }
-    });
-
+function fillMockData(db) {
     db.user.create({ username: 'admin', password: 'admin_password', online: false });
     const user1 = db.user.create({ username: 'User-1', password: 'User-1_password', online: false });
     const user2 = db.user.create({ username: 'User-2', password: 'User-2_password', online: false });
@@ -54,6 +28,37 @@ function mockDbFabric() {
     db.message.create({ user: user1, text: 'And third message from User-1', time: new Date(2022, 2, 1, 12, 15, 35) });
     db.message.create({ user: user6, text: 'Сообщение, содержащее кириллицу.', time: new Date(2022, 2, 1, 13, 1, 17) });
     db.message.create({ user: user6, text: 'Попытка засунуть тег внутрь сообщения <strong>Вери Стронг!</strong>', time: new Date(2022, 2, 1, 13, 1, 37) });
+}
+
+function* idGenerator() {
+    let id = 1;
+    for (; ;) {
+        yield id++;
+    }
+}
+
+// TODO: Make mockDB abstraction to implement Dependency Inversion principle
+function mockDbFabric() {
+    const usersPk = idGenerator();
+    const messagesPk = idGenerator();
+
+    const db = factory({
+        user: {
+            id: primaryKey(() => usersPk.next().value),
+            username: String,
+            password: String,
+            online: Boolean,
+            apiToken: String,
+        },
+        message: {
+            id: primaryKey(() => messagesPk.next().value),
+            user: oneOf('user'),
+            text: String,
+            time: Date,
+        }
+    });
+
+    fillMockData(db);
 
     return db;
 }
