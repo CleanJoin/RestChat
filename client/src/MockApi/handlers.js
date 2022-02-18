@@ -9,7 +9,7 @@ import {
     MAX_MESSAGE_LENGTH,
     LOGIN_REGEX,
     PASSWORD_REGEX
-} from '../restrictions';
+} from '../settings';
 
 
 function isValidCredentials(username, password) {

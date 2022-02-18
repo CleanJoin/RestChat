@@ -12,7 +12,7 @@ import {
   MAX_PASSWORD_LENGTH,
   LOGIN_REGEX,
   PASSWORD_REGEX
-} from '../restrictions';
+} from '../settings';
 
 import logo from '../Images/RestChat_logo.png';
 

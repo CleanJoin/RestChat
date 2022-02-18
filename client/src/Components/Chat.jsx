@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
+
+import { AUTO_UPDATE_INTERVAL_SEC } from "../settings";
+
 import MessageList from "./MessageList";
 import MemberList from "./MemberList";
+
 
 function Chat({
   apiClient,
   memberName,
-  updateIntervalSec,
   setIsAuthorized,
   setMemberName
 }) {
@@ -56,7 +59,7 @@ function Chat({
 
     if (autoUpdateIntervalId === null) {
       fetchData();
-      const intervalId = setInterval(fetchData, updateIntervalSec * 1000);
+      const intervalId = setInterval(fetchData, AUTO_UPDATE_INTERVAL_SEC * 1000);
       setAutoUpdateIntervalId(intervalId);
       console.log("Started auto data fetch loop");
     }

@@ -1,7 +1,6 @@
 import { React, useState } from 'react';
 import { CssBaseline } from '@mui/material';
 
-import { AUTO_UPDATE_INTERVAL_SEC } from './restrictions';
 import LoginForm from './Components/LoginForm';
 import Chat from './Components/Chat';
 
@@ -29,7 +28,6 @@ function App({ apiClient }) {
           <Chat
             apiClient={apiClient}
             memberName={memberName}
-            updateIntervalSec={AUTO_UPDATE_INTERVAL_SEC}
             setIsAuthorized={setIsAuthorized}
             setMemberName={setMemberName}
           />

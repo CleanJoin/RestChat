@@ -1,5 +1,4 @@
 // TODO: Опционально импортировать часть настроек через параметры окружения.
-// TODO: переименовать в settings
 
 export const MAX_LOGIN_LENGTH = 16;
 export const LOGIN_REGEX = /^([a-zA-Z0-9_-]){1,}$/;
