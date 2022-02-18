@@ -1,20 +1,20 @@
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
-import Fingerprint from '@mui/icons-material/Fingerprint';
 import AppRegistration from '@mui/icons-material/AppRegistration';
-
-import logo from '../Images/RestChat_logo.png';
-
-import { Container, TextField } from '@mui/material';
+import Button from '@mui/material/Button';
+import Fingerprint from '@mui/icons-material/Fingerprint';
+import Stack from '@mui/material/Stack';
 import { Box } from '@mui/system';
+import { Container, TextField } from '@mui/material';
 import { useState } from 'react';
 
+import {
+  MAX_LOGIN_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  LOGIN_REGEX,
+  PASSWORD_REGEX
+} from '../restrictions';
 
-const MAX_LOGIN_LENGTH = 15;
-const LOGIN_REGEX = /^([a-zA-Z0-9_-]){1,}$/;
-const MAX_PASSWORD_LENGTH = 32;
-const PASSWORD_REGEX = /^([a-zA-Z0-9_-]){1,}$/;
+import logo from '../Images/RestChat_logo.png';
 
 const MESSAGE_ERROR = "error";
 const MESSAGE_SUCCESS = "success";
@@ -52,11 +52,11 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
       throw new Error(`Password length should be 1 to ${MAX_PASSWORD_LENGTH} symbols.`);
     }
 
-    if(!LOGIN_REGEX.test(username)) {
+    if (!LOGIN_REGEX.test(username)) {
       throw new Error('Allowed username symbols is [a-zA-Z0-9_].');
     }
 
-    if(!PASSWORD_REGEX.test(password)) {
+    if (!PASSWORD_REGEX.test(password)) {
       throw new Error('Allowed password symbols is [a-zA-Z0-9_].');
     }
 
@@ -161,7 +161,7 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
                     severity={msg.type}
                     key={i}
                     onClose={() => deleteMessage(i)}
-                    >
+                  >
                     {msg.text}
                   </Alert>
                 )
