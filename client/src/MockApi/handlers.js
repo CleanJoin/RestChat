@@ -14,6 +14,7 @@ import {
 
 function mockHandlersFabric(db) {
 
+    //TODO: split into handlers functions
     const handlers = [
         rest.get('/api/health', (req, res, ctx) => {
             return res(
@@ -26,6 +27,8 @@ function mockHandlersFabric(db) {
 
         rest.post('/api/user', (req, res, ctx) => {
             const { username, password } = req.body;
+
+            //TODO: Validate username and password
 
             const existingUser = db.user.findFirst({
                 where: { username: { equals: username } }
@@ -52,6 +55,8 @@ function mockHandlersFabric(db) {
 
         rest.post('/api/login', (req, res, ctx) => {
             const { username, password } = req.body;
+
+            //TODO: Validate username and password
 
             const user = db.user.findFirst({
                 where: { username: { equals: username } }
@@ -217,7 +222,7 @@ function mockHandlersFabric(db) {
                 )
             }
 
-            if (text.length > MAX_LOGIN_LENGTH) {
+            if (text.length > MAX_MESSAGE_LENGTH) {
                 return res(
                     ctx.status(StatusCodes.BAD_REQUEST),
                     ctx.json({
