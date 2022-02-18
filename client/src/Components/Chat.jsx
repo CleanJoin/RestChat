@@ -3,37 +3,50 @@ import MessageList from "./MessageList";
 import MemberList from "./MemberList";
 
 function Chat({
+  apiClient,
   memberName,
   updateIntervalSec,
-  logoutHandler,
-  sendMessageHandler,
-  getMembersHandler,
-  getMessagesHandler
+  setIsAuthorized,
+  setMemberName
 }) {
 
   const [members, setMembers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [autoUpdateIntervalId, setAutoUpdateIntervalId] = useState(null);
 
+  // TODO: Handle exceptions
   const updateMembers = useCallback(() => {
     console.log("Updating members");
-    const newMembers = getMembersHandler();
-    // setMembers(newMembers);
-  }, [getMembersHandler]);
+    apiClient.getMembers().then(newMembers => {
+      console.log("getMembers resolved, newMembers:", newMembers);
+      if (newMembers !== null && newMembers.length > 0) {
+        setMembers(newMembers);
+      }
+    });
+  }, [apiClient]);
 
+  // TODO: Handle exceptions
   const updateMessages = useCallback(() => {
     console.log("Updating messages");
-    const newMessages = getMessagesHandler();
-    // setMessages(newMessages);
-  }, [getMessagesHandler]);
+    apiClient.getMessages().then(newMessages => {
+      console.log("getMessages resolved, newMessages", newMessages);
+      if (newMessages !== null && newMessages.length > 0) {
+        setMessages(newMessages);
+      }
+    });
+  }, [apiClient]);
 
-  const onLogout = () => {
-    if (autoUpdateIntervalId != null) {
-      clearInterval(autoUpdateIntervalId);
-    }
-    setAutoUpdateIntervalId(null);
-    logoutHandler();
-  }
+  // TODO: Handle exceptions
+  const onLogout = useCallback(() => {
+    apiClient.logout().then(() => {
+      if (autoUpdateIntervalId != null) {
+        clearInterval(autoUpdateIntervalId);
+      }
+      setAutoUpdateIntervalId(null);
+      setIsAuthorized(false);
+      setMemberName(null);
+    });
+  }, [apiClient, setAutoUpdateIntervalId, setIsAuthorized, setMemberName]);
 
   const startAutoFetch = useCallback(() => {
     const fetchData = () => {
@@ -53,13 +66,11 @@ function Chat({
     startAutoFetch();
   }, [startAutoFetch]);
 
-
   return (
     <div>
-      <p>Chat</p>
       <p>Member name: {memberName}</p>
       <button type="button" onClick={onLogout}>Logout</button>
-      <button type="button" onClick={sendMessageHandler}>Send message</button>
+      <button type="button">Send message</button>
       <MemberList members={members} />
       <MessageList messages={messages} />
     </div>
