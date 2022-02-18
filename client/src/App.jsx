@@ -1,13 +1,13 @@
 import { React, useState } from 'react';
 import { CssBaseline } from '@mui/material';
 
+import { AUTO_UPDATE_INTERVAL_SEC } from './restrictions';
 import LoginForm from './Components/LoginForm';
 import Chat from './Components/Chat';
 
 import './App.css';
 import '@fontsource/roboto/400.css';
 
-const AUTO_UPDATE_INTERVAL_SEC = 5;
 
 function App({ apiClient }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
