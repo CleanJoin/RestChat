@@ -175,7 +175,6 @@ describe('ApiClientRest get members list', () => {
 
         expect(membersNumBeforeLogout - membersNumAfterLogout).toEqual(1);
     });
-
 });
 
 describe('ApiClientRest can receive and send messages', () => {
@@ -234,6 +233,39 @@ describe('ApiClientRest can receive and send messages', () => {
 
         let messagesAfter = await client2.getMessages();
         expect(messagesAfter.filter(msg => msg.text === text).length).toEqual(1);
+    });
+
+    //TODO: Test that message with length more than allowed throws error
+
+    test('received message should be sorted by time and id', async () => {
+        await client.login("User-5", 'User-5_password');
+
+        const isMessagesSorted = (messages) => {
+            for (let i = 0; i < messages.length - 2; i++) {
+                let prev = messages[i];
+                let next = messages[i + 1]
+                if (prev.time > next.time || (prev.time === next.time && prev.id > next.id)) {
+                    console.error("prev, next:", prev, next)
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        await client.sendMessage("Sending first message to confirm that messages is sorted.");
+        expect(isMessagesSorted(await client.getMessages())).toEqual(true);
+
+        await client.sendMessage("Checking that messages is sorted 'zzz' not by text.");
+        expect(isMessagesSorted(await client.getMessages())).toEqual(true);
+
+        await client.sendMessage("Sending third message to confirm that messages is sorted somehow.");
+        expect(isMessagesSorted(await client.getMessages())).toEqual(true);
+
+        const lastText = "Message to confirm that last message is last in result array.";
+        await client.sendMessage("lastText");
+        const lastMessages = await client.getMessages();
+
+        expect(lastMessages[lastMessages.length - 1].text).toEqual(lastText);
     });
 
 });
