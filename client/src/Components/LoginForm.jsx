@@ -136,10 +136,8 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
               onClick={async () => { handleLogin() }}
             >
               Login
-            </Button>
+            </Button4
 
-            <Button
-              type="submit"
               variant="contained"
               color="warning"
               fullWidth
@@ -151,9 +149,8 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
             </Button>
           </Stack>
 
-
+          {/* TODO: Вынести в отдельный компонент блок ошибок */}
           <Stack direction="column-reverse" spacing={1}>
-
             {
               messages.map((msg, i) => {
                 return (
