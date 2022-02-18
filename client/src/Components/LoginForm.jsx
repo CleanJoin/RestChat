@@ -136,8 +136,10 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
               onClick={async () => { handleLogin() }}
             >
               Login
-            </Button4
+            </Button>
 
+            <Button
+              type="submit"
               variant="contained"
               color="warning"
               fullWidth
