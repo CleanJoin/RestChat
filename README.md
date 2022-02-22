@@ -235,7 +235,7 @@ git push
 ```
 
 ```json
-{"auth_token": "string", "member": {"id": 12, "name": "vasya"}}
+{"api_token": "string", "member": {"id": 12, "name": "vasya"}}
 ```
 
 **Ошибка - Неправильный логин/пароль**:
