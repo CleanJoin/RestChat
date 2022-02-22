@@ -35,6 +35,7 @@ function Chat({
 
   const updateMessages = useCallback(async () => {
     try {
+      // TODO: validate message length (and format here) before sending
       const newMessages = await apiClient.getMessages();
       console.log("getMessages resolved, newMessages", newMessages);
       setMessages(newMessages);
@@ -66,6 +67,15 @@ function Chat({
     onError
   ]);
 
+  const onSendMessage = useCallback(async () => {
+    try {
+      await apiClient.sendMessage("Some example hardcoded text");
+    } catch (exception) {
+      onError(`Failed send message with error: ${exception.message}`);
+    }
+    await updateMessages();
+  }, [apiClient, onError, updateMessages])
+
   const startAutoFetch = useCallback(() => {
     const fetchData = () => {
       updateMembers();
@@ -90,7 +100,7 @@ function Chat({
     <div>
       <p>Member name: {memberName}</p>
       <button type="button" onClick={onLogout}>Logout</button>
-      <button type="button">Send message</button>
+      <button type="button" onClick={onSendMessage}>Send message</button>
       <MemberList members={members} />
       <MessageList messages={messages} />
     </div>
