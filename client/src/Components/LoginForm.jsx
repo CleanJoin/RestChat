@@ -41,6 +41,7 @@ function LoginForm({ apiClient, setIsAuthorized, setMemberName }) {
     return [username, password]
   }
 
+  // TODO: Extract validator class
   const sanitizeFormParams = () => {
     const [username, password] = getFormParams();
 
