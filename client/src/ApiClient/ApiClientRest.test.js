@@ -1,3 +1,4 @@
+import { MAX_MESSAGE_LENGTH } from '../settings';
 import ApiClientRest from './ApiClientRest';
 
 let client = null;
@@ -236,6 +237,10 @@ describe('ApiClientRest can receive and send messages', () => {
     });
 
     //TODO: Test that message with length more than allowed throws error
+    test('that message with length more than allowed throws error', async () => {
+        let illegally 
+        throw new Error("Not implemented test");
+    });
 
     test('received message should be sorted by time and id', async () => {
         await client.login("User-5", 'User-5_password');
