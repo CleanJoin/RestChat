@@ -1,3 +1,4 @@
+import { MAX_MESSAGE_LENGTH } from '../settings';
 import ApiClientRest from './ApiClientRest';
 
 let client = null;
@@ -90,7 +91,7 @@ describe('ApiClientRest login', () => {
 describe('ApiClientRest new user registration', () => {
 
     test('creating unique new user should succeed', async () => {
-        const newUserName = 'User-test-register';
+        const newUserName = 'User-test-reg';
         const newPassword = 'p-word';
 
         const registeredUserName = await client.register(newUserName, newPassword);
@@ -98,7 +99,7 @@ describe('ApiClientRest new user registration', () => {
     });
 
     test('login with new created user should succeed', async () => {
-        const newUserName = 'User-test-register-login';
+        const newUserName = 'User-reg-login';
         const newPassword = 'password12345';
 
         expect(client.isAuthorized()).toEqual(false);
@@ -157,7 +158,6 @@ describe('ApiClientRest get members list', () => {
     });
 
     test('user logout should decrease online users count', async () => {
-
         await client.login('User-4', 'User-4_password');
         expect(client.isAuthorized()).toEqual(true);
 
@@ -176,7 +176,6 @@ describe('ApiClientRest get members list', () => {
 
         expect(membersNumBeforeLogout - membersNumAfterLogout).toEqual(1);
     });
-
 });
 
 describe('ApiClientRest can receive and send messages', () => {
@@ -235,6 +234,43 @@ describe('ApiClientRest can receive and send messages', () => {
 
         let messagesAfter = await client2.getMessages();
         expect(messagesAfter.filter(msg => msg.text === text).length).toEqual(1);
+    });
+
+    //TODO: Test that message with length more than allowed throws error
+    test('that message with length more than allowed throws error', async () => {
+        let illegally 
+        throw new Error("Not implemented test");
+    });
+
+    test('received message should be sorted by time and id', async () => {
+        await client.login("User-5", 'User-5_password');
+
+        const isMessagesSorted = (messages) => {
+            for (let i = 0; i < messages.length - 2; i++) {
+                let prev = messages[i];
+                let next = messages[i + 1]
+                if (prev.time > next.time || (prev.time === next.time && prev.id > next.id)) {
+                    console.error("prev, next:", prev, next)
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        await client.sendMessage("Sending first message to confirm that messages is sorted.");
+        expect(isMessagesSorted(await client.getMessages())).toEqual(true);
+
+        await client.sendMessage("Checking that messages is sorted 'zzz' not by text.");
+        expect(isMessagesSorted(await client.getMessages())).toEqual(true);
+
+        await client.sendMessage("Sending third message to confirm that messages is sorted somehow.");
+        expect(isMessagesSorted(await client.getMessages())).toEqual(true);
+
+        const lastText = "Message to confirm that last message is last in result array.";
+        await client.sendMessage("lastText");
+        const lastMessages = await client.getMessages();
+
+        expect(lastMessages[lastMessages.length - 1].text).toEqual(lastText);
     });
 
 });

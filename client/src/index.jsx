@@ -5,7 +5,17 @@ import App from './App';
 import ApiClientRest from './ApiClient/ApiClientRest'
 import reportWebVitals from './reportWebVitals';
 
+import { ApiBuilderWorker } from './MockApi/worker';
+import { MockApiServer } from './MockApi/api';
+import mockDbFabric from './MockApi/db';
+import mockHandlersFabric from './MockApi/handlers';
+
 import './index.css';
+
+// TODO: start mockApiServer only if in debug environment
+// TODO: use deferred mounting in debug environment
+const mockApiServer = new MockApiServer(new ApiBuilderWorker(), mockDbFabric, mockHandlersFabric);
+mockApiServer.start();
 
 const apiClient = new ApiClientRest();
 
