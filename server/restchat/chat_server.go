@@ -317,7 +317,7 @@ func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, s
 			}{u.ID, userModel.Username, u.Text, u.Time})
 
 		}
-		ctx.IndentedJSON(http.StatusOK, newMessages.Messages)
+		ctx.IndentedJSON(http.StatusOK, newMessages)
 	}
 }
 

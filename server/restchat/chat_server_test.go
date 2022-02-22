@@ -41,7 +41,7 @@ func TestMessageHandler(t *testing.T) {
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 	sessionStorage.Create(0)
 
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": "string"}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken, "text": "string"}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
@@ -60,7 +60,7 @@ func TestMessageHandlerEmptyText(t *testing.T) {
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 	sessionStorage.Create(1)
 
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": ""}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken, "text": ""}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
@@ -89,7 +89,7 @@ func TestMessageHandlerLongText(t *testing.T) {
 	гцшщкшгщуцкгшщуцщгшкуцшгщкугцшщкшгущцшкгщJdsfsdfdsfsdfdsfdsfsdfsкегщшуегущшегукшцукгнуцгшкуцгкшщуцгкшуцгшщкгуцщкшгуцкгуцшщкгуцшкгуцшщкгцущшкгуцшщгк
 	цушщкввгвыкшгкшгыукгшщуцшгщцушгщкуцшщгкцугшщкуцшгщкуцшгщкшгуцкшгщуцщкгшуцгшщкугцшщкшгуцщкшщгуцщкгшуцшгщкуцгшщку
 	гцшщкшгщуцкгшщуцщгшкуцшгщкугцшщкшгущцшкгщ`
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken, "text": text}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken, "text": text}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
@@ -111,7 +111,7 @@ func TestMessageHandlerBadRequest(t *testing.T) {
 	sessionStorage.Create(1)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/members", strings.NewReader(`{"api_token":`+sessionStorage.Sessions[0].AuthToken+`,"text": }`))
+	req, _ := http.NewRequest("POST", "/api/members", strings.NewReader(`{"api_token":`+sessionStorage.Sessions[0].ApiToken+`,"text": }`))
 
 	chatServer.router.ServeHTTP(w, req)
 	if http.StatusBadRequest != w.Code {
@@ -131,7 +131,7 @@ func TestMessagesHandler(t *testing.T) {
 	sessionStorage.Create(1)
 	sessionStorage.Create(2)
 
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/messages", bytes.NewBuffer(jsonValue))
@@ -150,7 +150,7 @@ func TestMessagesHandlerEmpty(t *testing.T) {
 	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
 	sessionStorage.Create(1)
 	sessionStorage.Create(2)
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/messages", bytes.NewBuffer(jsonValue))
@@ -188,7 +188,7 @@ func TestMembersHandler(t *testing.T) {
 	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
 	sessionStorage.Create(0)
 	sessionStorage.Create(1)
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/members", bytes.NewBuffer(jsonValue))
@@ -244,7 +244,7 @@ func TestLogoutHandler(t *testing.T) {
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 	sessionStorage.Create(1)
-	values := map[string]string{"api_token": sessionStorage.Sessions[0].AuthToken}
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/logout", bytes.NewBuffer(jsonValue))
@@ -378,7 +378,7 @@ func TestLoginHandler(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
-	outSession := "{\n    \"auth_token\": \"" + sessionStorage.Sessions[0].AuthToken + "\",\n    \"member\": {\n        \"id\": 1,\n        \"name\": \"Andrey\"\n    }\n}"
+	outSession := "{\n    \"auth_token\": \"" + sessionStorage.Sessions[0].ApiToken + "\",\n    \"member\": {\n        \"id\": 1,\n        \"name\": \"Andrey\"\n    }\n}"
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, outSession, w.Body.String())
 }
