@@ -9,9 +9,9 @@ type UserModel struct {
 }
 
 type SessionModel struct {
-	ID        uint   `json:"id"`
-	UserId    uint   `json:"name"`
-	AuthToken string `json:"auth_token"`
+	ID       uint   `json:"id"`
+	UserId   uint   `json:"name"`
+	ApiToken string `json:"api_token"`
 }
 
 type MessageModel struct {

@@ -41,7 +41,7 @@ func (sessionStorage *SessionStorageMemory) GetUserId(apiToken string) (uint, er
 	}
 
 	for _, ss := range sessionStorage.Sessions {
-		if apiToken == ss.AuthToken {
+		if apiToken == ss.ApiToken {
 			return ss.UserId, nil
 		}
 	}
@@ -66,7 +66,7 @@ func (sessionStorage *SessionStorageMemory) Delete(apiToken string) error {
 	index := 0
 	status := false
 	for i, r := range sessionStorage.Sessions {
-		if r.AuthToken == apiToken {
+		if r.ApiToken == apiToken {
 			index = i
 			status = true
 			break
@@ -83,8 +83,8 @@ func (sessionStorage *SessionStorageMemory) Create(userId uint) (SessionModel, e
 	sessionId := getLastSessionId(sessionStorage)
 	sessionId++
 	lenCurrentMessages := len(sessionStorage.Sessions)
-	authToken := sessionStorage.tokenGenerator.Create()
-	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: sessionId, UserId: userId, AuthToken: authToken})
+	ApiToken := sessionStorage.tokenGenerator.Create()
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: sessionId, UserId: userId, ApiToken: ApiToken})
 	if lenCurrentMessages >= len(sessionStorage.Sessions) {
 		return SessionModel{}, fmt.Errorf("не удалось добавить сообщение")
 	}

@@ -149,7 +149,7 @@ func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.
 			return
 		}
 
-		ctx.IndentedJSON(http.StatusOK, gin.H{"auth_token": sessionModel.AuthToken, "member": gin.H{"id": sessionModel.ID, "name": userMode.Username}})
+		ctx.IndentedJSON(http.StatusOK, gin.H{"api_token": sessionModel.ApiToken, "member": gin.H{"id": sessionModel.ID, "name": userMode.Username}})
 	}
 }
 
