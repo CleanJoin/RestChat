@@ -14,8 +14,8 @@ import './index.css';
 
 // TODO: start mockApiServer only if in debug environment
 // TODO: use deferred mounting in debug environment
-const mockApiServer = new MockApiServer(new ApiBuilderWorker(), mockDbFabric, mockHandlersFabric);
-mockApiServer.start();
+// const mockApiServer = new MockApiServer(new ApiBuilderWorker(), mockDbFabric, mockHandlersFabric);
+// mockApiServer.start();
 
 const apiClient = new ApiClientRest();
 
