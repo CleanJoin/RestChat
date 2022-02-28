@@ -80,13 +80,24 @@ func (sessionStorage *SessionStorageMemory) Delete(apiToken string) error {
 }
 
 func (sessionStorage *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
+
+	ApiToken := sessionStorage.tokenGenerator.Create()
+	for id, session := range sessionStorage.Sessions {
+		if session.UserId == userId && len(sessionStorage.Sessions) != 1 {
+			sessionStorage.Sessions = append(sessionStorage.Sessions[:id], sessionStorage.Sessions[id+1:]...)
+		}
+		if session.UserId == userId && len(sessionStorage.Sessions) == 1 {
+			sessionStorage.Sessions = []SessionModel{}
+			break
+		}
+
+	}
+	lenCurrentMessages := len(sessionStorage.Sessions)
 	sessionId := getLastSessionId(sessionStorage)
 	sessionId++
-	lenCurrentMessages := len(sessionStorage.Sessions)
-	ApiToken := sessionStorage.tokenGenerator.Create()
 	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: sessionId, UserId: userId, ApiToken: ApiToken})
 	if lenCurrentMessages >= len(sessionStorage.Sessions) {
-		return SessionModel{}, fmt.Errorf("не удалось добавить сообщение")
+		return SessionModel{}, fmt.Errorf("не удалось добавить сессию")
 	}
 	return sessionStorage.Sessions[len(sessionStorage.Sessions)-1], nil
 }

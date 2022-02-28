@@ -245,8 +245,13 @@ func membersHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gi
 			ctx.IndentedJSON(statusCode, ctx2)
 			return
 		}
+		_, err := sessionStorage.GetUserId(requestApiToken.ApiToken)
+		if err != nil {
+			ctx.IndentedJSON(http.StatusOK, err.Error())
+			return
+		}
 
-		userId, err := sessionStorage.GetOnlineUserIds()
+		userIds, err := sessionStorage.GetOnlineUserIds()
 		if err != nil {
 			type Newmembers struct {
 				Members []string `json:"members"`
@@ -257,9 +262,9 @@ func membersHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gi
 			return
 		}
 
-		users, err := userStorage.GetByIds(userId)
+		users, err := userStorage.GetByIds(userIds)
 		if err != nil {
-			ctx.IndentedJSON(http.StatusOK, gin.H{"members": userId})
+			ctx.IndentedJSON(http.StatusOK, gin.H{"members": userIds})
 			return
 		}
 		newMembers := new(RequestMembers)
