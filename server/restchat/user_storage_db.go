@@ -58,11 +58,7 @@ func (userStorageDB *UserStorageDB) GetById(id uint) (UserModel, error) {
 
 func (userStorageDB *UserStorageDB) GetByIds(ids []uint) ([]UserModel, error) {
 
-	idIndexer := make(map[uint]uint)
 	newUserStorage := new(UserStorageDB)
-	for index, user := range userStorageDB.Users {
-		idIndexer[user.ID] = uint(index)
-	}
 
 	userModel := new(UserModel)
 	query := `select * from "restchat".users u where id = ANY($1)`
@@ -73,9 +69,9 @@ func (userStorageDB *UserStorageDB) GetByIds(ids []uint) ([]UserModel, error) {
 	for commandTag.Next() {
 
 		err := commandTag.Scan(&userModel.ID, &userModel.Username, &userModel.PasswordHash)
-		if userModel.ID != idIndexer[userModel.ID] {
-			newUserStorage.Users = append(newUserStorage.Users, UserModel{userModel.ID, userModel.Username, userModel.PasswordHash})
-		}
+
+		newUserStorage.Users = append(newUserStorage.Users, UserModel{userModel.ID, userModel.Username, userModel.PasswordHash})
+
 		if err != nil {
 			return userStorageDB.Users, fmt.Errorf(err.Error())
 		}
