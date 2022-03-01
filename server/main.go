@@ -2,10 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"restchat_server/restchat"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 
 // @title           Swagger RestChat
 // @version         1.0
@@ -17,6 +27,7 @@ import (
 
 // @host      localhost:8000
 // @BasePath  /
+
 func main() {
 	serverPort, _ := strconv.Atoi(os.Getenv("SERVER_PORT"))
 	maxMessagesNum, _ := strconv.Atoi(os.Getenv("SERVER_MAX_MESSAGES"))

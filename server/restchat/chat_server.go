@@ -137,7 +137,7 @@ func loginHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gin.
 		}
 		userMode, err := userStorage.GetByName(requestUser.Username)
 		if err != nil {
-			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не зарегистрирован"})
 			return
 		}
 		if !checkUserPassword(requestUser.Username, requestUser.Password, userStorage) {
@@ -313,6 +313,16 @@ func messagesHandler(messageStorage IMessageStorage, userStorage IUserStorage, s
 			return
 		}
 
+		if messageModel == nil {
+			type NewMessages struct {
+				Messages []string `json:"messages"`
+			}
+			empty := make([]string, 0)
+			emptyMembers := NewMessages{Messages: empty}
+			ctx.IndentedJSON(http.StatusOK, emptyMembers)
+			return
+		}
+
 		newMessages := new(RequestMessages)
 		for _, u := range messageModel {
 			userModel, _ := userStorage.GetById(u.UserId)
@@ -389,7 +399,7 @@ func validateMessage(text string) bool {
 	return len(text) < 1024
 }
 func validatePassword(password string) bool {
-	return len(password) < 32
+	return len(password) < 32 && len(password) > 0
 }
 
 func checkUserPassword(userName string, password string, userStorage IUserStorage) bool {
