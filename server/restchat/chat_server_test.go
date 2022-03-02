@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-playground/assert/v2"
+	"github.com/joho/godotenv"
 )
 
 func TestUse(t *testing.T) {
@@ -47,7 +48,7 @@ func TestMessageHandler(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/message", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusCreated, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestMessageHandlerEmptyText(t *testing.T) {
@@ -111,7 +112,7 @@ func TestMessageHandlerBadRequest(t *testing.T) {
 	sessionStorage.Create(1)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/members", strings.NewReader(`{"api_token":`+sessionStorage.Sessions[0].ApiToken+`,"text": }`))
+	req, _ := http.NewRequest("POST", "/api/message", strings.NewReader(`{"api_token":`+sessionStorage.Sessions[0].ApiToken+`,"text": }`))
 
 	chatServer.router.ServeHTTP(w, req)
 	if http.StatusBadRequest != w.Code {
@@ -160,6 +161,28 @@ func TestMessagesHandlerEmpty(t *testing.T) {
 	outMembers := "{\n    \"messages\": []\n}"
 	assert.Equal(t, outMembers, w.Body.String())
 }
+func TestMessagesDbHandlerEmpty(t *testing.T) {
+	godotenv.Load(".env")
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersStorage := NewUserStorageDB(new(PasswordHasherSha1), NewConnectDB(5432))
+	messageStorage := NewMessageStorageDB(NewConnectDB(5432))
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersStorage, messageStorage)
+	usersStorage.Create("Andrey", "fghfghfghfgh")
+	usersStorage.Create("Andrey2", "fghfghfghfghhhh")
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/messages", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	outMembers := "{\n    \"messages\": []\n}"
+	assert.Equal(t, outMembers, w.Body.String())
+}
 func TestMessagesHandlerApiTokenBadRequest(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -186,8 +209,10 @@ func TestMembersHandler(t *testing.T) {
 	chatServer.Use(sessionStorage, usersstorage, messageStorage)
 	usersstorage.Create("Andrey", "fghfghfghfgh")
 	usersstorage.Create("Andrey2", "fghfghfghfghhhh")
+
 	sessionStorage.Create(0)
 	sessionStorage.Create(1)
+
 	values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
 	jsonValue, _ := json.Marshal(values)
 	w := httptest.NewRecorder()
@@ -197,8 +222,32 @@ func TestMembersHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	outMembers := "{\n    \"members\": [\n        {\n            \"id\": 0,\n            \"name\": \"Andrey\"\n        },\n        {\n            \"id\": 1,\n            \"name\": \"Andrey2\"\n        }\n    ]\n}"
 	assert.Equal(t, outMembers, w.Body.String())
+
 }
 
+func TestMembersDBHandler(t *testing.T) {
+	godotenv.Load(".env")
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersStorage := NewUserStorageDB(new(PasswordHasherSha1), NewConnectDB(5432))
+	messageStorage := NewMessageStorageDB(NewConnectDB(5432))
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersStorage, messageStorage)
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	sessionStorage.Create(3)
+	for i := 0; i < 3; i++ {
+
+		values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
+		jsonValue, _ := json.Marshal(values)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/api/members", bytes.NewBuffer(jsonValue))
+
+		chatServer.router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	}
+
+}
 func TestMembersHandlerNotSession(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))
@@ -309,6 +358,26 @@ func TestUserHandler(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 	assert.Equal(t, outUser, w.Body.String())
 }
+func TestUserDB(t *testing.T) {
+	godotenv.Load(".env")
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersStorage := NewUserStorageDB(new(PasswordHasherSha1), NewConnectDB(5432))
+	messageStorage := NewMessageStorageDB(NewConnectDB(5432))
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersStorage, messageStorage)
+
+	values := map[string]string{"username": "Andrey89", "password": "fghfghfghfgh"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+
+	outUser := "{\n    \"username\": \"" + "Andrey89" + "\"\n}"
+	assert.Equal(t, http.StatusCreated, w.Code)
+	assert.Equal(t, outUser, w.Body.String())
+}
 
 func TestUserHandlerInStorage(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
@@ -324,7 +393,7 @@ func TestUserHandlerInStorage(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/user", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
-	if http.StatusForbidden == w.Code {
+	if http.StatusForbidden != w.Code {
 		t.Errorf("%v", w.Body) //{"error":"Пользователь существует в базе"}
 	}
 }
@@ -378,7 +447,28 @@ func TestLoginHandler(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonValue))
 
 	chatServer.router.ServeHTTP(w, req)
-	outSession := "{\n    \"auth_token\": \"" + sessionStorage.Sessions[0].ApiToken + "\",\n    \"member\": {\n        \"id\": 1,\n        \"name\": \"Andrey\"\n    }\n}"
+	outSession := "{\n    \"api_token\": \"" + sessionStorage.Sessions[0].ApiToken + "\",\n    \"member\": {\n        \"id\": 1,\n        \"name\": \"Andrey\"\n    }\n}"
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, outSession, w.Body.String())
+}
+func TestLoginDBHandler(t *testing.T) {
+	godotenv.Load(".env")
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersStorage := NewUserStorageDB(new(PasswordHasherSha1), NewConnectDB(5432))
+	messageStorage := NewMessageStorageDB(NewConnectDB(5432))
+
+	// usersstorage.Create("Andrey", "fghfghfghfgh")
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersStorage, messageStorage)
+
+	values := map[string]string{"username": "Andrey", "password": "fghfghfghfgh"}
+	jsonValue, _ := json.Marshal(values)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonValue))
+
+	chatServer.router.ServeHTTP(w, req)
+	outSession := "{\n    \"api_token\": \"" + sessionStorage.Sessions[0].ApiToken + "\",\n    \"member\": {\n        \"id\": 1,\n        \"name\": \"Andrey\"\n    }\n}"
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, outSession, w.Body.String())
 }

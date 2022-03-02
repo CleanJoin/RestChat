@@ -19,17 +19,17 @@ func TestUserCreateDB(t *testing.T) {
 	fmt.Println(userModel)
 }
 
-func TestGetByIdDB(t *testing.T) {
+func TestGetByIdDBNotSearch(t *testing.T) {
 	godotenv.Load(".env")
 
 	connectDB := NewConnectDB(5432)
 	var passwordHash IPasswordHasher = new(PasswordHasherSha1)
 	var inter IUserStorage = NewUserStorageDB(passwordHash, connectDB)
-	userModel, err := inter.GetById(1)
-	if err != nil {
+	userModel, err := inter.GetById(200)
+	if userModel.Username != "" {
 		t.Errorf(err.Error())
 	}
-	fmt.Println(userModel)
+
 }
 
 func TestGetByIdsDB(t *testing.T) {

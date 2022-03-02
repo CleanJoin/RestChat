@@ -204,17 +204,17 @@ func userHandler(userStorage IUserStorage) gin.HandlerFunc {
 		}
 
 		if !validatenUserName(requestUser.Username) {
-			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Invalid Username"})
+			ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid Username"})
 			return
 		}
 
 		if !validatePassword(requestUser.Password) {
-			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Invalid Password"})
+			ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid Password"})
 			return
 		}
 		userMode, err := userStorage.GetByName(requestUser.Username)
 		if err == nil {
-			ctx.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Пользователь существует в базе"})
+			ctx.IndentedJSON(http.StatusForbidden, gin.H{"error": "Пользователь существует в базе"})
 			return
 		}
 		userMode, err = userStorage.Create(requestUser.Username, requestUser.Password)
@@ -247,7 +247,12 @@ func membersHandler(sessionStorage ISessionStorage, userStorage IUserStorage) gi
 		}
 		_, err := sessionStorage.GetUserId(requestApiToken.ApiToken)
 		if err != nil {
-			ctx.IndentedJSON(http.StatusOK, err.Error())
+			type Newmembers struct {
+				Members []string `json:"members"`
+			}
+			empty := make([]string, 0)
+			emptyMembers := Newmembers{Members: empty}
+			ctx.IndentedJSON(http.StatusOK, emptyMembers)
 			return
 		}
 
@@ -386,7 +391,7 @@ func messageHandler(messageStorage IMessageStorage, userStorage IUserStorage, se
 			Text       string    "json:\"text\""
 			Time       time.Time "json:\"time\""
 		}{messageModel.ID, userModel.Username, messageModel.Text, messageModel.Time})
-		ctx.IndentedJSON(http.StatusCreated, newMessages.Messages)
+		ctx.IndentedJSON(http.StatusOK, newMessages.Messages)
 	}
 }
 

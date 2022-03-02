@@ -93,6 +93,7 @@ func TestDeleteSession(t *testing.T) {
 }
 func TestCreateSession(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+
 	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 4, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
 	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 2, UserId: 3, ApiToken: "713e50a0651541d9b973aba3ec04e1f1"})
 	outSessionStorage := new(SessionStorageMemory)
@@ -105,6 +106,35 @@ func TestCreateSession(t *testing.T) {
 		t.Errorf("Не создалась сессия %v", err)
 	}
 
+}
+
+func TestCreateNewSession(t *testing.T) {
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 11, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 12, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 21, UserId: 2, ApiToken: "713e50a0651541d9b973aba3ec04e1f1"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 13, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 14, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 15, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 22, UserId: 2, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 16, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 31, UserId: 3, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 32, UserId: 3, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 33, UserId: 3, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 34, UserId: 3, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 17, UserId: 1, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 35, UserId: 3, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 36, UserId: 3, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 41, UserId: 4, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Sessions = append(sessionStorage.Sessions, SessionModel{ID: 42, UserId: 4, ApiToken: "a396776f58b942fb9b10ebc798ab6303"})
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	sessionStorage.Create(3)
+	sessionStorage.Create(4)
+
+	if len(sessionStorage.Sessions) != 4 || len(sessionStorage.Sessions) < 4 {
+		t.Errorf("Не корректно удались сессии")
+	}
 }
 func TestISessionStorage(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
