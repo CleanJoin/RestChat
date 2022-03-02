@@ -82,12 +82,18 @@ func (sessionStorage *SessionStorageMemory) Delete(apiToken string) error {
 func (sessionStorage *SessionStorageMemory) Create(userId uint) (SessionModel, error) {
 
 	ApiToken := sessionStorage.tokenGenerator.Create()
-	for id, session := range sessionStorage.Sessions {
-		if session.UserId == userId && len(sessionStorage.Sessions) != 1 {
-			sessionStorage.Sessions = append(sessionStorage.Sessions[:id], sessionStorage.Sessions[id+1:]...)
-		}
-		if session.UserId == userId && len(sessionStorage.Sessions) == 1 {
+
+	for id := 0; id < len(sessionStorage.Sessions); id++ {
+		if sessionStorage.Sessions[id].UserId == userId && len(sessionStorage.Sessions) == 1 {
 			sessionStorage.Sessions = []SessionModel{}
+			break
+		}
+		if sessionStorage.Sessions[id].UserId == userId {
+			sessionStorage.Sessions = append(sessionStorage.Sessions[:id], sessionStorage.Sessions[id+1:]...)
+			id--
+		}
+		len2 := len(sessionStorage.Sessions)
+		if id >= len2 {
 			break
 		}
 
