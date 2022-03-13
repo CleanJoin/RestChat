@@ -248,6 +248,31 @@ func TestMembersDBHandler(t *testing.T) {
 	}
 
 }
+
+func TestMessagesDBHandler(t *testing.T) {
+	godotenv.Load(".env")
+	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
+	usersStorage := NewUserStorageDB(new(PasswordHasherSha1), NewConnectDB(5432))
+	messageStorage := NewMessageStorageDB(NewConnectDB(5432))
+
+	chatServer := NewChatServerGin("localhost", 8080, 300)
+	chatServer.Use(sessionStorage, usersStorage, messageStorage)
+	sessionStorage.Create(1)
+	sessionStorage.Create(2)
+	sessionStorage.Create(3)
+	for i := 0; i < 3; i++ {
+
+		values := map[string]string{"api_token": sessionStorage.Sessions[0].ApiToken}
+		jsonValue, _ := json.Marshal(values)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/api/messages", bytes.NewBuffer(jsonValue))
+
+		chatServer.router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	}
+
+}
+
 func TestMembersHandlerNotSession(t *testing.T) {
 	sessionStorage := NewSessionStorageMemory(new(TokenGeneratorUUID))
 	usersstorage := NewUserStorageMemory(new(PasswordHasherSha1))

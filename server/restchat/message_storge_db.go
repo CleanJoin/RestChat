@@ -32,19 +32,21 @@ func (messageStorageDB *MessageStorageDB) Create(userId uint, text string) (Mess
 }
 
 func (messageStorageDB *MessageStorageDB) GetLast(n uint) ([]MessageModel, error) {
-	messageModel := new(MessageModel)
-	query := `select * from "restchat".messages u order by id desc  limit $1`
+	messageStorageDBNew := new(MessageStorageDB)
+	query := `select * from "restchat".messages u order by id asc  limit $1`
 	commandTag, err := messageStorageDB.connect.Query(context.Background(), query, n)
 	if err != nil {
 		return []MessageModel{}, fmt.Errorf(err.Error())
 	}
+
 	for commandTag.Next() {
+		messageModel := new(MessageModel)
 		err := commandTag.Scan(&messageModel.ID, &messageModel.UserId, &messageModel.Text, &messageModel.Time)
-		messageStorageDB.Messages = append(messageStorageDB.Messages, MessageModel{messageModel.ID, messageModel.UserId, messageModel.Text, messageModel.Time})
+		messageStorageDBNew.Messages = append(messageStorageDBNew.Messages, MessageModel{messageModel.ID, messageModel.UserId, messageModel.Text, messageModel.Time})
 		if err != nil {
 			return []MessageModel{}, fmt.Errorf(err.Error())
 		}
 	}
 
-	return messageStorageDB.Messages, nil
+	return messageStorageDBNew.Messages, nil
 }
